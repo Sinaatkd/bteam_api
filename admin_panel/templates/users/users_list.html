@@ -1,0 +1,116 @@
+{% extends 'shared/main_layout_admin.html' %}
+{% load static %}
+
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'admin_panel/css/style.css' %}">
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">کاربران</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">آخرین کاربران</h3>
+                            <h3 class="card-title">
+                                <br>
+                                <form>
+                                    <input type="text" class="form-control col-4" name="s" value="{{ request.GET.s }}" placeholder="نام و نام خانوادگی">
+                                </form>
+                            </h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>نام کاربری</th>
+                                        <th>شماره تلفن</th>
+                                        <th>جزئیات</th>
+                                    </tr>
+                                    {% for user in page_obj %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>{{ user.full_name }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.phone_number }}</td>
+                                        <td>
+                                            <a href="{% url 'user_edit' user.id %}" class="btn btn-primary">مشاهده</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="?page={{page_obj.previous_page_number}}&s={{ request.GET.s }}"
+                                                    aria-controls="example2" data-dt-idx="0" tabindex="0"
+                                                    class="page-link">قبلی</a>
+                                            </li>
+                                            {% endif %}
+                                            
+                                            {% for page_num in paginator.page_range %}
+                                            
+                                            {% if page_obj.number == page_num and not page_obj.has_next and not page_obj.has_previous %}
+                                            <p>صفحه بعدی وجود ندارد</p>
+                                            {% else %}
+                                            {% if page_obj.number == page_num %}
+                                            <li class="paginate_button page-item active">
+                                                <a aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+
+                                            {% else %}
+                                            <li class="paginate_button page-item"><a href="?page={{page_num}}&s={{ request.GET.s }}"
+                                                    aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <li class="paginate_button page-item next" id="example2_next"><a
+                                                    href="?page={{page_obj.next_page_number}}&s={{ request.GET.s }}" aria-controls="example2"
+                                                    data-dt-idx="7" tabindex="0" class="page-link">بعدی</a></li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row (main row) -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+
+{% endblock %}  

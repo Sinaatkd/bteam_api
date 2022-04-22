@@ -1,0 +1,147 @@
+{% extends "shared/main_layout_admin.html" %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">جایزه ها</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">افزودن کارت</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <form action="{% url 'add_gift' %}" method="post">
+                                <div class="row">
+                                    <input type="hidden" name="user_id" value="{{user_id}}">
+                                    <select name="gift_type" class="col-4 form-control mb-2" required>
+                                        <option disabled>نوع جایزه</option>
+                                        <option value="red-b">رد بی</option>
+                                        <option selected value="blue-b">بلو بی</option>
+                                        <option value="black-b">بلک بی</option>
+                                    </select>
+                                    <select name="for_what" class="col-4 form-control mb-2 mr-2" required>
+                                        <option disabled>بابت</option>
+                                        <option value="register">ثبت نام</option>
+                                        <option selected value="buy">خرید اشتراک</option>
+                                    </select>
+                                    <button type="submit" class="btn btn-primary mr-2">اضافه کردن</button>
+                                </div>
+                            </form>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">جایزه ها</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>شناسه</th>
+                                            <th>کد</th>
+                                            <th>نوع جایزه</th>
+                                            <th>استفاده شده/نشده</th>
+                                            <th>برای</th>
+                                            <th>دستور</th>
+                                        </tr>
+                                        {% for gift in gifts %}
+                                        <tr>
+                                            <td>{{ gift.id }}</td>
+                                            <td>{{ gift.code }}</td>
+                                            <td>{{ gift.gift_type }}</td>
+                                            <td>
+
+                                                {% if gift.is_active %}
+                                                <p>استفاده نشده</p>
+                                                {% else %}
+                                                <p>استفاده شده</p>
+                                                {% endif %}
+
+                                            </td>
+                                            <td>
+
+                                                {% if gift.for_what == 'buy' %}
+                                                <p>خرید اشتراک</p>
+                                                {% else %}
+                                                <p>دعوت کردن</p>
+                                                {% endif %}
+
+                                            </td>
+                                            <td>
+
+                                                {% if gift.is_active %}
+                                                <a href="{% url 'deactive_user_gift' gift.id %}"
+                                                    class="btn btn-danger">غیر فعال کردن</a>
+                                                {% else %}
+                                                <a href="{% url 'active_user_gift' gift.id %}"
+                                                    class="btn btn-success">فعال کردن</a>
+                                                {% endif %}
+
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+
+                    <div class="col-12">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">لاگ ها</h3>
+                            </div>
+                            <!-- /.card-header -->
+                            <div class="card-body table-responsive p-0">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>شناسه</th>
+                                            <th>عنوان</th>
+                                            <th>توضیحات</th>
+                                        </tr>
+                                        {% for log in gift_logs %}
+                                        <tr>
+                                            <td>{{ log.id }}</td>
+                                            <td>{{ log.title }}</td>
+                                            <td>{{ log.content }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+
+{% endblock content %}

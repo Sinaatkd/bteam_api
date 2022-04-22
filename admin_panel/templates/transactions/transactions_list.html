@@ -1,0 +1,120 @@
+{% extends 'shared/main_layout_admin.html' %}
+{% load static %}
+
+
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">تراکنش ها</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">تراکنش های فعال نشده</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>نوع پرداخت</th>
+                                        <th>وضعیت</th>
+                                        <th>نام مشاور</th>
+                                        <th>جزئیات</th>
+                                    </tr>
+                                    {% for transaction in object_list %}
+                                    
+                                    {% if not transaction.is_confirmation %}
+                                    <tr>
+                                        <td>{{ transaction.id }}</td>
+                                        <td>{{ transaction.user.full_name }}</td>
+                                        <td>{% if transaction.payment_mode == 'offline' %}
+                                            کارت به کارت
+                                            {% else %}
+                                            آنلاین
+                                            {% endif %}</td>
+                                        <td>{{ transaction.transaction_status }}</td>
+                                        <td>{{ transaction.consultant_name }}</td>
+                                        <td>
+                                            <a href="{% url 'user_edit' transaction.user.id %}"
+                                                class="btn btn-primary">مشاهده</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                        
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">تراکنش های فعال شده</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>نوع پرداخت</th>
+                                        <th>وضعیت</th>
+                                        <th>نام مشاور</th>
+                                        <th>جزئیات</th>
+                                    </tr>
+                                    {% for transaction in object_list %}
+                                    {% if transaction.is_confirmation %}                                        
+                                    
+                                    <tr>
+                                        <td>{{ transaction.id }}</td>
+                                        <td>{{ transaction.user.full_name }}</td>
+                                        <td>{% if transaction.payment_mode == 'offline' %}
+                                        کارت به کارت
+                                        {% else %}
+                                        آنلاین
+                                        {% endif %}</td>
+                                        <td>{{ transaction.transaction_status }}</td>
+                                        <td>{{ transaction.consultant_name }}</td>
+                                        <td>
+                                            <a href="{% url 'user_edit' transaction.user.id %}"
+                                            class="btn btn-primary">مشاهده</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                    {% endfor %}
+                                    </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row (main row) -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends "shared/main_layout_admin.html" %}
+{% load static %}
+{% load check_perm %}
+
+
+{% block content %}
+<div class="content-wrapper" style="min-height: 697px;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>'{{ selected_futures.coin_symbol }}'</h1>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">جزئیات</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>سمبل کوین</b>
+                                    <a class="float-left">{{ selected_futures.coin_symbol }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>حد ضرر</b>
+                                    <a class="float-left">{{ selected_futures.stop_loss }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>قیمت ورود</b>
+                                    <a class="float-left">{{ selected_futures.entry }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>درصد حجم ورود</b>
+                                    <a class="float-left">{{ selected_futures.amount }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>نوع</b>
+                                    <a class="float-left">{{ selected_futures.type_of_investment }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>اهرم</b>
+                                    <a class="float-left">x{{ selected_futures.leverage }}</a>
+                                </li>
+
+                                {% if not selected_futures.is_active %}
+                                <li class="list-group-item">
+                                    <b>علت بسته شدن</b>
+                                    <a class="float-left">{{ selected_futures.status }}</a>
+                                </li>
+                                {% endif %}
+
+                                <li class="list-group-item">
+                                    <b>وضعیت فعال بودن/نبودن</b>
+
+                                    {% if selected_futures.is_active %}
+                                    <a class="float-left">
+                                        <span class="badge badge-success">فعال</span>
+                                    </a>
+                                    {% else %}
+                                    <a class="float-left">
+                                        <span class="badge badge-danger">غیرفعال</span>
+                                    </a>
+                                    {% endif %}
+
+                                </li>
+                                <li class="list-group-item">
+                                    <b>درصد سود</b>
+                                    <a class="float-left">{{ selected_futures.profit_of_signal_amount }}</a>
+                                </li>
+
+                                {% if selected_futures.is_active %}
+                                <li class="list-group-item">
+                                    <b>بستن سیگنال : </b>
+                                    <br>
+                                    <form action="{% url 'close_futures_signal' selected_futures.id %}" method="POST">
+                                        <input type="number" placeholder="میزان سود" required
+                                            name="profit_of_signal_amount" class="form-control">
+                                        <input type="text" placeholder="علت بسته شدن" required name="status"
+                                            class="form-control mt-2">
+                                        <input type="submit" value="بستن" class="btn btn-danger mt-2">
+                                    </form>
+                                </li>
+                                {% endif %}
+
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">افزودن تارگت</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <form action="{% url 'add_futures_target' %}" method="POST">
+                                    <li class="list-group-item">
+                                        <input type="hidden" name="futures_id" value="{{selected_futures.id}}">
+                                    </li>
+                                    <li class="list-group-item">
+                                        <input type="text" name="title" placeholder="عنوان" required class="form-control">
+                                    </li>
+                                    <li class="list-group-item">
+                                        <input type="number" step="any" name="amount" placeholder="قیمت (USDT)" required class="form-control">
+                                    </li>
+                                    <li class="list-group-item">
+                                        <input type="submit" value="افزودن" required class="btn btn-primary btn-block">
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">افزودن خبر</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <form action="{% url 'add_futures_news' %}" method="POST">
+                                    <li class="list-group-item">
+                                        <input type="hidden" name="futures_id" value="{{selected_futures.id}}">
+                                    </li>
+                                    <li class="list-group-item">
+                                        <input type="text" name="content" placeholder="محتوای خبر" required class="form-control">
+                                    </li>
+                                    <li class="list-group-item">
+                                        <input type="submit" value="افزودن" required class="btn btn-primary btn-block">
+                                    </li>
+                                </form>
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">اخبار</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>محتوا</th>
+                                    </tr>
+                                    {% for news in selected_futures.signal_news.all %}
+                                    <tr>
+                                        <td>{{ news.id }}</td>
+                                        <td>{{ news.content }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">تارگت ها</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>عنوان</th>
+                                        <th>تاچ شده/نشده</th>
+                                    </tr>
+                                    {% for target in selected_futures.targets.all %}
+                                    <tr>
+                                        <td>{{ target.id }}</td>
+                                        <td>{{ target.title }}</td>
+                                        <td>
+                                        {% if target.is_touched %}
+                                        <span class="badge bg-success">تاچ شده</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">تاچ نشده</span>
+                                        {% endif %}                                                
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+        </div>
+        <!-- /.row -->
+</div><!-- /.container-fluid -->
+</section>
+<!-- /.content -->
+</div>
+{% endblock %}

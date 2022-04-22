@@ -1,0 +1,19 @@
+{
+    "platform": "docker",
+    "app": "bteamapp",
+    "port": 8000,
+    "disks": [
+        {
+            "name": "static",
+            "mountTo": "/home/code/static_cdn"
+        },
+        {
+            "name": "media",
+            "mountTo": "/home/code/staic_cdn"
+        },
+        {
+            "name": "cron",
+            "mountTo": "/var/spool/cron"
+        }
+    ]
+}

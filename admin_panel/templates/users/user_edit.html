@@ -1,0 +1,370 @@
+{% extends "shared/main_layout_admin.html" %}
+{% load static %}
+{% load check_perm %}
+
+
+{% block content %}
+<div class="content-wrapper" style="min-height: 697px;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>ویرایش '{{ selected_user.full_name }}'</h1>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Profile Image -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+
+                            <h3 class="profile-username text-center">مشخصات حساب</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>نام و نام خانوادگی</b>
+                                    <a class="float-left">{{ selected_user.full_name }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>نام کاربری</b>
+                                    <a class="float-left">{{ selected_user.username }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>شماره تلفن</b>
+                                    <a class="float-left">{{ selected_user.phone_number }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>کد ملی</b>
+                                    <a class="float-left">{{ selected_user.national_code }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>شهر</b>
+                                    <a class="float-left">{{ selected_user.from_city }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>موجودی کیف پول</b>
+                                    <a class="float-left">{{ selected_user.wallet }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>میزان آشنایی با ارزهای دیجیتال</b>
+                                    <a class="float-left">
+
+                                        {% if selected_user.familiarity_with_digital_currencies == 'medium' %}
+                                        متوسط
+                                        {% endif %}
+                                        {% if selected_user.familiarity_with_digital_currencies == 'good' %}
+                                        خوب
+                                        {% endif %}
+                                        {% if selected_user.familiarity_with_digital_currencies == 'bad' %}
+                                        بد
+                                        {% endif %}
+
+                                    </a>
+                                <li class="list-group-item">
+                                    <b>میزان سرمایه</b>
+                                    <a class="float-left">
+
+                                        {% if selected_user.amount_of_capital == 'lessThan5Mil' %}
+                                        کمتر از 10 میلیون
+                                        {% endif %}
+                                        {% if selected_user.amount_of_capital == 'Between10MilAnd50Mil' %}
+                                        بین 10 تا 50 میلیون
+                                        {% endif %}
+                                        {% if selected_user.amount_of_capital == 'moreThan50Mil' %}
+                                        بیشتر از 50 میلیون
+                                        {% endif %}
+
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>وضعیت فعال بودن</b>
+                                    <a class="float-left">
+                                        {% if not selected_user.is_active %}
+                                        <span class="badge badge-warning">غیرفعال</span>
+                                        {% else %}
+                                        <span class="badge badge-success">فعال</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <form action="{% url 'delete_user' selected_user.id %}">
+                                        <button type="submit" class="float-right btn btn-outline-danger mt-2 ml-2">حذف کردن کاربر</button>
+                                    </form>
+                                    {% if selected_user.is_active %}
+                                    <form action="{% url 'deactivate_user' selected_user.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <button type="submit" class="float-right btn btn-danger text-white mt-2">بن کردن</a>
+                                    </form>
+                                    {% else %}
+                                    <!-- <p>
+                                        علت ریپورت: {{ selected_user.report_message }}
+                                    </p> -->
+                                    <a href="{% url 'activate_user' selected_user.id %}"
+                                        class="float-right btn btn-success text-white mt-2">فعال کردن</a>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Profile Image -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">مشخصات تلفن همراه</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>uuid</b>
+                                    <a class="float-left">{{ selected_user.device.uuid }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>پلتفرم</b>
+                                    <a class="float-left">{{ selected_user.device.platform }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>مدل</b>
+                                    <a class="float-left">{{ selected_user.device.model }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>سیستم عامل</b>
+                                    <a class="float-left">{{ selected_user.device.operating_system }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>ورژن سیستم عامل</b>
+                                    <a class="float-left">{{ selected_user.device.os_version }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <a href="{% url 'remove_device_uuid' selected_user.device.id %}"
+                                        class="btn btn-outline-danger">حذف اطلاعات</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <!-- Profile Image -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+
+                            <h3 class="profile-username text-center">وضعیت اشتراک</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+
+                                {% if user_transaction is not None %}
+
+
+                                <li class="list-group-item">
+                                    <b>نام و نام خانوادگی</b>
+                                    <a class="float-left">
+                                        {% if user_transaction.payment_mode == 'offline' %}
+                                        کارت به کارت
+                                        {% else %}
+                                        آنلاین
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>قیمت پرداختی</b>
+                                    <a class="float-left">{{ user_transaction.amount }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>اشتراک خریداری شده</b>
+                                    <a class="float-left" href="">{{ user_transaction.special_item }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>وضعیت</b>
+                                    <a class="float-left">{{ user_transaction.transaction_status }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>نام مشاور</b>
+                                    <a class="float-left">{{ user_transaction.consultant_name }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>فیش واریزی</b>
+
+                                    {% if user_transaction.payment_receipt.url is not None %}
+                                    <a class="float-left" href="{{ user_transaction.payment_receipt.url }}">مشاهده</a>
+                                    {% else %}
+                                    <a class="float-left">ارسال نشده</a>
+                                    {% endif %}
+                                </li>
+                                <li class="list-group-item">
+                                    <b>وضعیت فعال بودن</b>
+                                    <a class="float-left">
+                                        {% if not user_transaction.is_confirmation %}
+                                        <span class="badge badge-warning">غیرفعال</span>
+                                        {% else %}
+                                        <span class="badge badge-success">فعال</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                
+                                {% if not user_transaction.is_confirmation and user_transaction.transaction_status == 'در حال بررسی' %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'confirm_transaction' user_transaction.id %}"
+                                        class="btn btn-success">تایید</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <form method="post" action="{% url 'unconfirm_transaction' user_transaction.id %}">
+                                        <input required placeholder="علت رد شدن" name="reject_text" type="text"
+                                            class="form-control" class="form-control">
+                                        <br>
+                                        <button type="submit" class="btn btn-danger">رد کردن</button>
+                                    </form>
+                                </li>
+                                {% endif %}
+                                    
+                                {% else %}
+                                <p>اشتراکی وجود ندارد</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">اطلاعات</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="users-list clearfix">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-4">
+                                            {{ edit_form.username }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ edit_form.full_name }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ edit_form.national_code }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ edit_form.from_city }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ edit_form.phone_number }}
+                                        </div>
+                                        <div class="col-4">
+                                            {{ edit_form.wallet }}
+                                        </div>
+                                        <div class="col-8 mt-4">
+                                            <div class="row">
+                                                <div class="col-4">
+                                                    <label for="{{ edit_form.is_staff.id_for_label }}">
+                                                        {{ edit_form.is_staff.label }}
+                                                    </label>
+                                                </div>
+                                                <div class="col-4 text-center">
+                                                    {{ edit_form.is_staff }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <button class="btn btn-primary text-white" type="submit">ویرایش</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.card -->
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">دسترسی ها</h3>
+                        </div>
+                        <div class="card-body">
+                            <ul class="users-list clearfix">
+                                <form action="{% url 'set_user_permission' selected_user.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        {% for group in groups %}
+                                        <div class="col-4">
+                                            <label for="{{ group.name }}">{{ group.name }}</label>
+                                            <input type="checkbox" {% if selected_user|has_group:group.name %} checked {% endif %} name="{{ group.name }}" id="{{ group.name }}">
+                                        </div>
+                                        {% endfor %}
+                                        <div class="col-6">
+                                            <button class="btn btn-primary text-white" type="submit">تایید</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- /.card -->
+                </div>
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">پیام های دریافتی</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <ul class="users-list clearfix">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th style="width: 10px">#</th>
+                                            <th>متن پیام</th>
+                                            <th>دیده شده/نشده</th>
+                                        </tr>
+                                        {% for message in user_messages %}
+                                        <tr>
+                                            <td>{{ message.id }}</td>
+                                            <td><a href="">{{ message.title }}</a></td>
+                                            <td>
+                                                {% if message.is_seen %}
+                                                <span class="badge badge-success">دیده شده</span>
+                                                {% else %}
+                                                <span class="badge badge-danger">دیده نشده</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+
+                
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">افزودن پیام</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <form action="{% url 'add_user_message' %}" method="post">
+                                <input type="text" name="title" placeholder="متن پیام جدید" class="col-6 form-control mb-2">
+                                <input type="hidden" name="user_id" value="{{ selected_user.id }}" class="col-6 form-control">
+                                <textarea name="description" class="form-control mb-2" cols="30" rows="10"></textarea>
+                                <button type="submit" class="btn btn-primary text-white">افزودن پیام</button>
+                            </form>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock %}

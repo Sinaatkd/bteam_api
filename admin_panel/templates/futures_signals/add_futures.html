@@ -1,0 +1,56 @@
+{% extends "shared/main_layout_admin.html" %}
+{% load static %}
+{% load check_perm %}
+
+
+{% block content %}
+<div class="content-wrapper" style="min-height: 697px;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>افزودن</h1>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">                
+                <div class="col-md-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">افزودن</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <form method="post">
+                                    <div class="row">
+                                    <input type="text" name="coin_symbol" placeholder="سمبل کوین" maxlength="5" class="col-6 form-control mb-2">
+                                    <input type="number" name="amount" placeholder="درصد حجم ورود" class="col-6 form-control mb-2">
+                                    <input type="number" name="leverage" placeholder="اهرم" class="col-6 form-control mb-2">
+                                    <select name="type_of_investment" class="col-6 form-control mb-2">
+                                        <option selected>نوع</option>
+                                        <option value="SHORT">SHORT</option>
+                                        <option value="LONG">LONG</option>
+                                    </select>
+                                    <input type="number" step="any" name="stop_loss" placeholder="حد ضرر" class="col-6 form-control mb-2">
+                                    <input type="number" step="any" name="entry" placeholder="قیمت ورود" class="col-6 form-control mb-2">
+                                    <button type="submit" class="btn btn-primary text-white">افزودن</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock %}
