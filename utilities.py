@@ -61,14 +61,14 @@ def send_notification(title, content, is_send_sms=True):
 
     r = requests.post(url, data=payload, headers=headers)
 
-    if is_send_sms:
-        for user in User.objects.all():
+    # if is_send_sms:
+    #     for user in User.objects.all():
             
-            try:
-                if user.device.operating_system == 'ios' or user.device.platform == 'web':
-                    send_sms('8vgnui3wcy', user.phone_number, {'coin_symbol': title.split(' ')[1], 'content': content})
-            except:
-                pass
+    #         try:
+    #             if user.device.operating_system == 'ios' or user.device.platform == 'web':
+    #                 send_sms('8vgnui3wcy', user.phone_number, {'coin_symbol': title.split(' ')[1], 'content': content})
+    #         except:
+    #             pass
 
 
 def diff_between_two_dates(d1, d2):
