@@ -192,13 +192,13 @@ class GetAllPublicDiscountAPI(ListAPIView):
     serializer_class = DiscountCodeSerializer
 
 
-class GetAllFuturesSignals(ListAPIView):
-    queryset = FuturesSignal.objects.all().order_by('-is_active')
+class GetAllActiveFuturesSignals(ListAPIView):
+    queryset = FuturesSignal.objects.filter(is_active=True)
     serializer_class = FuturesSignalSerializer
 
 
-class GetAllSpotSignals(ListAPIView):
-    queryset = SpotSignal.objects.all().order_by('-is_active')
+class GetAllActiveSpotSignals(ListAPIView):
+    queryset = SpotSignal.objects.filter(is_active=True)
     serializer_class = SpotSignalSerializer
 
 

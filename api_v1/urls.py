@@ -1,7 +1,7 @@
 from django.urls import path
 
 from api_v1.views import CancelTransactionAPI, CheckUserSpecialAccount, CheckUserTransactionStatus, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
-    EditUserAPI, ForgotPassAPI, GetAllFuturesSignals, GetAllPublicDiscountAPI, GetAllSpotSignals, GetGiftsInfo, GetLastBanner, \
+    EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, GetLastBanner, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
     LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, RegisterUserAPI, SeenAllUserMessage, SendReceiptImageAPI, \
     SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats
@@ -22,9 +22,9 @@ urlpatterns = [
     path('discount-codes/', GetAllPublicDiscountAPI.as_view()),
     path('check-discount-code/', CheckDiscountCodeAPI.as_view()),
     path('send-receipt/<int:pk>/', SendReceiptImageAPI.as_view()),
-    path('signals/futures/', GetAllFuturesSignals.as_view()),
+    path('signals/futures/', GetAllActiveFuturesSignals.as_view()),
     path('signals/futures/deactive/', DeactiveFuturesSignal.as_view()),
-    path('signals/spot/', GetAllSpotSignals.as_view()),
+    path('signals/spot/', GetAllActiveSpotSignals.as_view()),
     path('signals/spot/deactive/', DeactiveSpotSignal.as_view()),
     path('signals/general-stats/', getSignalGeneralStats.as_view()),
     path('signals/touch-target/', SetTouchTarget.as_view()),
