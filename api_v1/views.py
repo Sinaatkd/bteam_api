@@ -1,7 +1,7 @@
 import base64
-from datetime import timedelta
+from math import ceil
+from datetime import timedelta, datetime
 from django.utils.timezone import now
-
 from django.core.files.base import ContentFile
 from django.db.models import Sum
 from rest_framework.generics import CreateAPIView
@@ -202,6 +202,57 @@ class GetAllActiveSpotSignals(ListAPIView):
     serializer_class = SpotSignalSerializer
 
 
+class GetAllDeactiveSignals(APIView):
+    def get(self, request):
+        type_of_filter = request.query_params.get('range', 'daily')
+        days = 1
+        today = datetime.today()
+        if type_of_filter == 'daily':
+            days = 1
+        elif type_of_filter == 'weekly':
+            days = 7
+        elif type_of_filter == 'monthly':
+            days = 30
+            
+
+        
+        range_date = today - timedelta(days=days)
+        deactives_futures_signals = FuturesSignal.objects.filter(
+            is_active=False, created_time__range=[range_date, today])
+        deactives_spot_signals = SpotSignal.objects.filter(
+            is_active=False, created_time__range=[range_date, today])
+        closed_with_profit_count = deactives_futures_signals.filter(
+            status='فول تارگت').count() + deactives_spot_signals.filter(status='فول تارگت').count()
+        closed_at_loss_count = deactives_futures_signals.filter(status='حد ضرر فعال شد').count(
+        ) + deactives_spot_signals.filter(status='حد ضرر فعال شد').count()
+        voided_count = deactives_futures_signals.filter(status='باطل شد').count(
+        ) + deactives_spot_signals.filter(status='باطل شد').count()
+        risk_free_count = deactives_futures_signals.filter(status__icontains='ریسک فری').count(
+        ) + deactives_spot_signals.filter(status__icontains='ریسک فری').count()
+        spot_sum = deactives_spot_signals.aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        if spot_sum is None:
+            spot_sum = 0
+        futures_sum = deactives_futures_signals.aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        if futures_sum is None:
+            futures_sum = 0
+        
+        deactive_signal_count = deactives_futures_signals.count() + deactives_spot_signals.count()
+        if deactive_signal_count == 0:
+            deactive_signal_count = 1
+        profit_value = ceil((futures_sum + spot_sum) / (deactive_signal_count))
+        
+        res = {
+            'closed_with_profit_count':closed_with_profit_count, 
+            'closed_at_loss_count':closed_at_loss_count, 
+            'voided_count':voided_count, 
+            'risk_free_count':risk_free_count, 
+            'profit_value':profit_value,
+            'signals': FuturesSignalSerializer(deactives_futures_signals, many=True).data + SpotSignalSerializer(deactives_spot_signals, many=True).data 
+        }
+        
+        return Response(res)
+
+
 class DeactiveSpotSignal(APIView):
     def get(self, request):
         signal = SpotSignal.objects.get(id=request.query_params.get('id'))
@@ -222,7 +273,8 @@ class DeactiveSpotSignal(APIView):
                 if signal.targets.last().is_touched:
                     signal.is_active = False
                     signal.status = status
-                    signal.profit_of_signal_amount = ((signal.entry - signal.targets.last().amount) / signal.entry) * 100
+                    signal.profit_of_signal_amount = (
+                        (signal.entry - signal.targets.last().amount) / signal.entry) * 100
                     content = 'فول تارگت'
                     send_notification(f'سیگنال {signal.coin_symbol}', content)
                     send_notification(
@@ -250,7 +302,8 @@ class DeactiveFuturesSignal(ListAPIView):
                 if signal.targets.last().is_touched:
                     signal.is_active = False
                     signal.status = status
-                    signal.profit_of_signal_amount = (((signal.entry - signal.targets.last().amount) / signal.entry ) * 100) * signal.leverage
+                    signal.profit_of_signal_amount = (
+                        ((signal.entry - signal.targets.last().amount) / signal.entry) * 100) * signal.leverage
                     send_notification(
                         f'سیگنال {signal.coin_symbol}', 'فول تارگت')
                     send_notification(
@@ -486,11 +539,13 @@ class CreateUserCashWithdrawalAPI(CreateAPIView):
 
 class CheckUserTransactionStatus(APIView):
     def get(self, request):
-        transactions = Transaction.objects.filter(is_send_receipt=True, is_confirmation=False)
+        transactions = Transaction.objects.filter(
+            is_send_receipt=True, is_confirmation=False)
         for transaction in transactions:
             # minutes
-            result = diff_between_two_dates(now(), transaction.last_updated_time).seconds / 60
-            if result >= 3 and transaction.transaction_status !='در صف ورود' and transaction.transaction_status != 'ارسال به مرکز کنترل' and transaction.transaction_status != 'در حال بررسی':
+            result = diff_between_two_dates(
+                now(), transaction.last_updated_time).seconds / 60
+            if result >= 3 and transaction.transaction_status != 'در صف ورود' and transaction.transaction_status != 'ارسال به مرکز کنترل' and transaction.transaction_status != 'در حال بررسی':
                 transaction.transaction_status = 'در صف ورود'
                 transaction.last_updated_time = now()
                 transaction.save()
@@ -509,18 +564,22 @@ class CheckUserSpecialAccount(APIView):
     def get(self, request):
         transactions = Transaction.objects.filter(is_confirmation=True)
         for transaction in transactions:
-            result = diff_between_two_dates(transaction.date_of_approval + timedelta(transaction.validity_rate + 1), now()).days
+            result = diff_between_two_dates(
+                transaction.date_of_approval + timedelta(transaction.validity_rate + 1), now()).days
             if result == 10:
-                send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
             elif result == 5:
-                send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
             elif result == 3:
-                send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
             elif result == 1:
-                send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
             elif result <= 0:
-                send_sms('3egblee8ys', str(transaction.user.phone_number), {'name': transaction.user.full_name.split()[0]})
+                send_sms('3egblee8ys', str(transaction.user.phone_number), {
+                         'name': transaction.user.full_name.split()[0]})
                 transaction.delete()
         return Response({'message': 'ok'})
-    
-    

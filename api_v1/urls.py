@@ -1,7 +1,7 @@
 from django.urls import path
 
 from api_v1.views import CancelTransactionAPI, CheckUserSpecialAccount, CheckUserTransactionStatus, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
-    EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, GetLastBanner, \
+    EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, GetLastBanner, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
     LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, RegisterUserAPI, SeenAllUserMessage, SendReceiptImageAPI, \
     SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats
@@ -30,6 +30,7 @@ urlpatterns = [
     path('signals/touch-target/', SetTouchTarget.as_view()),
     path('signals/spot/touch-entry/', SetTouchSpotEntry.as_view()),
     path('signals/futures/touch-entry/', SetTouchFuturesEntry.as_view()),
+    path('signals/efficiency/', GetAllDeactiveSignals.as_view()),
     path('banner/', GetLastBanner.as_view()),
     path('gifts-info/', GetGiftsInfo.as_view()),
     path('use-gift/', UseGiftAPI.as_view()),
