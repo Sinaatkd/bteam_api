@@ -94,6 +94,7 @@
                         <!-- /.card-header -->
                         <div class="card-body p-2">
                             <form method="POST">
+                                {% csrf_token %}
                                 <div class="form-check">
                                     <input class="form-check-input" value="all"" type="radio" name="for" id="all">
                                     <label class="form-check-label" for="all">همه</label>

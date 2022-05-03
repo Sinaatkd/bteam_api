@@ -28,7 +28,8 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <form method="post">
-                                    <div class="row">
+                                {% csrf_token %}
+                                <div class="row">
                                     <input type="text" name="coin_symbol" placeholder="سمبل کوین" maxlength="5" class="col-6 form-control mb-2">
                                     <input type="number" name="amount" placeholder="درصد حجم ورود" class="col-6 form-control mb-2">
                                     <input type="number" name="leverage" placeholder="اهرم" class="col-6 form-control mb-2">

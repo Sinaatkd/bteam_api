@@ -28,6 +28,7 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <form action="{% url 'add_gift' %}" method="post">
+                                {% csrf_token %}
                                 <div class="row">
                                     <input type="hidden" name="user_id" value="{{user_id}}">
                                     <select name="gift_type" class="col-4 form-control mb-2" required>

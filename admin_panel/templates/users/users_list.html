@@ -30,7 +30,8 @@
                             <h3 class="card-title">
                                 <br>
                                 <form>
-                                    <input type="text" class="form-control col-4" name="s" value="{{ request.GET.s }}" placeholder="نام و نام خانوادگی">
+                                {% csrf_token %}
+                                <input type="text" class="form-control col-4" name="s" value="{{ request.GET.s }}" placeholder="نام و نام خانوادگی">
                                 </form>
                             </h3>
                         </div>

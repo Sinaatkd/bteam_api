@@ -30,6 +30,7 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <form action="{% url 'special_account_new' %}" method="POST" class="form-inline" enctype="multipart/form-data">
+                                {% csrf_token %}
                                 <input type="text" name="title" required class="col-6 form-control" minlength="1" maxlength="30" placeholder="عنوان">
                                 <input type="number" name="price" required class="col-6 form-control" placeholder="قیمت (تومان)">
                                 <input type="number" name="expire_day" required class="col-6 form-control" placeholder="تعداد روزهای معتبر">

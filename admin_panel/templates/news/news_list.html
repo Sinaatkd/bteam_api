@@ -30,6 +30,7 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <form action="{% url 'add_new' %}" method="POST" class="form-inline" enctype="multipart/form-data">
+                                {% csrf_token %}
                                 <input type="text" name="title" required class="col-6 form-control" minlength="1" placeholder="عنوان">
                                 <input type="text" name="short_description" required class="col-6 form-control" minlength="1" placeholder="توضیحات کوتاه">
                                 <textarea required name="description" placeholder="توضیحات" minlength="1" class="form-control mt-2" cols="180" rows="10"></textarea>

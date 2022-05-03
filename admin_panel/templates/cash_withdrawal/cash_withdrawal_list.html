@@ -57,6 +57,7 @@
                                             
                                             {% if not cash_withdrawal.is_confirmation %}
                                             <form method="POST" action="{% url 'confirm_cash_withdrawal' cash_withdrawal.id %}">
+                                                {% csrf_token %}
                                                 <input type="text" class="form-control mb-2" name="paycode" placeholder="کد پیگیری">
                                                 <button type="submit" class="btn btn-success">انجام شد</button>
                                             </form>

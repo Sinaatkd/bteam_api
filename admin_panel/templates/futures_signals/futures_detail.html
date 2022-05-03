@@ -81,7 +81,8 @@
                                     <b>بستن سیگنال : </b>
                                     <br>
                                     <form action="{% url 'close_futures_signal' selected_futures.id %}" method="POST">
-                                        <input type="number" placeholder="میزان سود" required
+                                {% csrf_token %}
+                                <input type="number" placeholder="میزان سود" required
                                             name="profit_of_signal_amount" class="form-control">
                                         <input type="text" placeholder="علت بسته شدن" required name="status"
                                             class="form-control mt-2">
@@ -101,7 +102,8 @@
                             <h3 class="profile-username text-center">افزودن تارگت</h3>
                             <ul class="list-group list-group-unbordered mb-3">
                                 <form action="{% url 'add_futures_target' %}" method="POST">
-                                    <li class="list-group-item">
+                                {% csrf_token %}
+                                <li class="list-group-item">
                                         <input type="hidden" name="futures_id" value="{{selected_futures.id}}">
                                     </li>
                                     <li class="list-group-item">
@@ -125,7 +127,8 @@
                             <h3 class="profile-username text-center">افزودن خبر</h3>
                             <ul class="list-group list-group-unbordered mb-3">
                                 <form action="{% url 'add_futures_news' %}" method="POST">
-                                    <li class="list-group-item">
+                                {% csrf_token %}
+                                <li class="list-group-item">
                                         <input type="hidden" name="futures_id" value="{{selected_futures.id}}">
                                     </li>
                                     <li class="list-group-item">
