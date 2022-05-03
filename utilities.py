@@ -2,6 +2,7 @@ import datetime
 import jdatetime
 import os
 import json
+import threading
 import random
 import string
 from random import randint
@@ -40,6 +41,16 @@ def generate_token(user):
         token = Token.objects.create(user_id=user.id)
     return token
 
+
+def send_to_users_iphones_or_web_platform(title, content):
+    for user in User.objects.all():
+        try:
+            if user.device.operating_system == 'ios' or user.device.platform == 'web':
+                send_sms('8vgnui3wcy', user.phone_number, {'coin_symbol': title.split(' ')[1], 'content': content})
+        except:
+            pass
+
+
 def send_notification(title, content, is_send_sms=True):
     TOKEN = '0516638bac652996d133bc0f9208882694a6e8e5'
     APP_ID = '5ej1mqy1nkorv2ye'
@@ -59,16 +70,11 @@ def send_notification(title, content, is_send_sms=True):
         }
     })
 
-    r = requests.post(url, data=payload, headers=headers)
+    requests.post(url, data=payload, headers=headers)
 
-    # if is_send_sms:
-    #     for user in User.objects.all():
-            
-    #         try:
-    #             if user.device.operating_system == 'ios' or user.device.platform == 'web':
-    #                 send_sms('8vgnui3wcy', user.phone_number, {'coin_symbol': title.split(' ')[1], 'content': content})
-    #         except:
-    #             pass
+    if is_send_sms:
+        thread = threading.Thread(target=send_to_users_iphones_or_web_platform, args=(title, content, ))
+        thread.start()
 
 
 def diff_between_two_dates(d1, d2):
