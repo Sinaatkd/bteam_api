@@ -28,9 +28,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['full_name', 'phone_number',
-                  'national_code', 'from_city', 'password', 'device', 'pk']
+                  'national_code', 'from_city', 'password', 'device', 'is_foreigner', 'pk']
 
     def create(self, validated_data):
+        if validated_data['is_foreigner'] == True:
+            validated_data['is_phone_number_verified'] = True
         username = uuid.uuid4()
         device = Device.objects.create(**validated_data['device'])
         del validated_data['device']

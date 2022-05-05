@@ -41,6 +41,7 @@ class User(AbstractUser):
     is_receive_news_notifications = models.BooleanField(default=True)
     invated_users = models.ManyToManyField('self', blank=True)
     wallet = models.PositiveIntegerField(default=0)
+    is_foreigner = models.BooleanField(default=False)
     first_name = None
     last_name = None
 
