@@ -8,7 +8,7 @@ from rest_framework.generics import CreateAPIView
 from banner.models import Banner
 from signals.models import FuturesSignal, SpotSignal, Target
 
-from utilities import diff_between_two_dates, generate_token, get_now_jalali_date, get_random_string, send_notification, send_sms, send_verification_code
+from utilities import calculate_profit_of_signals, diff_between_two_dates, generate_token, get_now_jalali_date, get_random_string, send_notification, send_sms, send_verification_code
 
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -213,9 +213,7 @@ class GetAllDeactiveSignals(APIView):
             days = 7
         elif type_of_filter == 'monthly':
             days = 30
-            
 
-        
         range_date = today - timedelta(days=days)
         deactives_futures_signals = FuturesSignal.objects.filter(
             is_active=False, created_time__range=[range_date, today])
@@ -229,27 +227,30 @@ class GetAllDeactiveSignals(APIView):
         ) + deactives_spot_signals.filter(status='باطل شد').count()
         risk_free_count = deactives_futures_signals.filter(status__icontains='ریسک فری').count(
         ) + deactives_spot_signals.filter(status__icontains='ریسک فری').count()
-        spot_sum = SpotSignal.objects.filter(is_active=False).aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        spot_sum = SpotSignal.objects.filter(is_active=False).aggregate(
+            Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if spot_sum is None:
             spot_sum = 0
-        futures_sum = FuturesSignal.objects.filter(is_active=False).aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        futures_sum = FuturesSignal.objects.filter(is_active=False).aggregate(
+            Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if futures_sum is None:
             futures_sum = 0
-        
-        deactive_signal_count = deactives_futures_signals.count() + deactives_spot_signals.count()
+
+        deactive_signal_count = deactives_futures_signals.count() + \
+            deactives_spot_signals.count()
         if deactive_signal_count == 0:
             deactive_signal_count = 1
         profit_value = ceil((futures_sum + spot_sum))
-        
+
         res = {
-            'closed_with_profit_count':closed_with_profit_count, 
-            'closed_at_loss_count':closed_at_loss_count, 
-            'voided_count':voided_count, 
-            'risk_free_count':risk_free_count, 
-            'profit_value':profit_value,
-            'signals': FuturesSignalSerializer(deactives_futures_signals, many=True).data + SpotSignalSerializer(deactives_spot_signals, many=True).data 
+            'closed_with_profit_count': closed_with_profit_count,
+            'closed_at_loss_count': closed_at_loss_count,
+            'voided_count': voided_count,
+            'risk_free_count': risk_free_count,
+            'profit_value': profit_value,
+            'signals': FuturesSignalSerializer(deactives_futures_signals, many=True).data + SpotSignalSerializer(deactives_spot_signals, many=True).data
         }
-        
+
         return Response(res)
 
 
@@ -359,22 +360,13 @@ class getSignalGeneralStats(APIView):
             is_active=True).count() + FuturesSignal.objects.filter(is_active=True).count()
         deactive_signal_count = SpotSignal.objects.filter(is_active=False).count(
         ) + FuturesSignal.objects.filter(is_active=False).count()
-        if deactive_signal_count != 0:
-            spot_signal_profit_of_signal_amount = SpotSignal.objects.aggregate(
-                Sum('profit_of_signal_amount'))
-            futures_signal_profit_of_signal_amount = FuturesSignal.objects.aggregate(
-                Sum('profit_of_signal_amount'))
-
-            if spot_signal_profit_of_signal_amount['profit_of_signal_amount__sum'] is None:
-                spot_signal_profit_of_signal_amount['profit_of_signal_amount__sum'] = 0
-            if futures_signal_profit_of_signal_amount['profit_of_signal_amount__sum'] is None:
-                futures_signal_profit_of_signal_amount['profit_of_signal_amount__sum'] = 0
-            profit_of_signal_amount = (spot_signal_profit_of_signal_amount['profit_of_signal_amount__sum'] +
-                                       futures_signal_profit_of_signal_amount['profit_of_signal_amount__sum']) / (active_signal_count + deactive_signal_count)
-        else:
-            profit_of_signal_amount = 0
+        profit_of_signal_amount = calculate_profit_of_signals('monthly')
+        profit_of_signal_amount_weekly = calculate_profit_of_signals('weekly')
+        profit_of_signal_amount_daily = calculate_profit_of_signals('daily')
         response = {
             'profit_of_signal_amount': profit_of_signal_amount,
+            'profit_of_signal_amount_weekly': profit_of_signal_amount_weekly,
+            'profit_of_signal_amount_daily': profit_of_signal_amount_daily,
             'active_signal_count': active_signal_count,
             'deactive_signal_count': deactive_signal_count,
         }
