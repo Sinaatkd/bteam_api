@@ -229,17 +229,17 @@ class GetAllDeactiveSignals(APIView):
         ) + deactives_spot_signals.filter(status='باطل شد').count()
         risk_free_count = deactives_futures_signals.filter(status__icontains='ریسک فری').count(
         ) + deactives_spot_signals.filter(status__icontains='ریسک فری').count()
-        spot_sum = deactives_spot_signals.aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        spot_sum = SpotSignal.objects.filter(is_active=False).aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if spot_sum is None:
             spot_sum = 0
-        futures_sum = deactives_futures_signals.aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
+        futures_sum = FuturesSignal.objects.filter(is_active=False).aggregate(Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if futures_sum is None:
             futures_sum = 0
         
         deactive_signal_count = deactives_futures_signals.count() + deactives_spot_signals.count()
         if deactive_signal_count == 0:
             deactive_signal_count = 1
-        profit_value = ceil((futures_sum + spot_sum) / (deactive_signal_count))
+        profit_value = ceil((futures_sum + spot_sum))
         
         res = {
             'closed_with_profit_count':closed_with_profit_count, 
