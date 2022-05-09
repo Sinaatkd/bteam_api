@@ -23,7 +23,7 @@ def send_sms(pattern, phone_number, variables):
 
 def send_sms_without_pattern(text, phone_numbers):
     sms = ippanel.Client('gV15DLD3t2ZQyLFrC9OpGfCfsH6DlBeJkOXnF8qN9XE=')
-    sms.send('+983000505', phone_numbers, text)
+    sms.send('+989999150632', phone_numbers, text)
 
 
 def get_filename_ext(filepath):
@@ -123,24 +123,17 @@ def calculate_profit_of_signals(time_range):
     spot_signals = SpotSignal.objects.filter(
         is_active=False, created_time__range=[range_date, today])
 
-    spot_sum = spot_signals.aggregate(Sum('profit_of_signal_amount')).get(
-        'profit_of_signal_amount__sum')
-
-    if spot_sum is None:
-        spot_sum = 0
-
     futures_signals = FuturesSignal.objects.filter(
         is_active=False, created_time__range=[range_date, today])
 
-    futures_sum = futures_signals.aggregate(
-        Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
-    if futures_sum is None:
-        futures_sum = 0
+    profit_value = 0
 
-    signals_count = spot_signals.count() + futures_signals.count()
-    if signals_count == 0:
-        signals_count = 1
+    for futures_signal in futures_signals:
+        profit_value += (futures_signal.amount / 100) * \
+            futures_signal.profit_of_signal_amount
 
-    profit_value = ceil((futures_sum + spot_sum) / signals_count)
+    for spot_signal in spot_signals:
+        profit_value += (spot_signal.proposed_capital / 100) * \
+            spot_signal.profit_of_signal_amount
 
     return profit_value
