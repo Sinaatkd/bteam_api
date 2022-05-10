@@ -129,10 +129,14 @@ def calculate_profit_of_signals(time_range):
     profit_value = 0
 
     for futures_signal in futures_signals:
+        if (futures_signal.profit_of_signal_amount == 0):
+            futures_signal.profit_of_signal_amount = -7
         profit_value += (futures_signal.amount / 100) * \
             futures_signal.profit_of_signal_amount
 
     for spot_signal in spot_signals:
+        if (spot_signal.profit_of_signal_amount == 0):
+            spot_signal.profit_of_signal_amount = -7
         profit_value += (spot_signal.proposed_capital / 100) * \
             spot_signal.profit_of_signal_amount
 
