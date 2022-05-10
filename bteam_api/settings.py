@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     # our applications
     'api_v1',
+    'api_v2',
     'account',
     'news',
     'special_account_item',
