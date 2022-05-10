@@ -374,8 +374,8 @@ class getSignalGeneralStats(APIView):
 
 
 class GetLastBanner(APIView):
-    authentication_classes = []  # disables authentication
-    permission_classes = []  # disables permission
+    authentication_classes = []  # disabled authentication
+    permission_classes = []  # disabled permission
 
     def get(self, request):
         last_banner = Banner.objects.last()

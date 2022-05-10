@@ -373,13 +373,13 @@ class getSignalGeneralStats(APIView):
         return Response(response)
 
 
-class GetLastBanner(APIView):
-    authentication_classes = []  # disables authentication
-    permission_classes = []  # disables permission
+class GetThreeLastBanners(APIView):
+    authentication_classes = []  # disabled authentication
+    permission_classes = []  # disabled permission
 
     def get(self, request):
-        last_banner = Banner.objects.last()
-        banner_serializer = BannerSerializer(last_banner)
+        three_last_banners = Banner.objects.all().order_by('-id')[:3]
+        banner_serializer = BannerSerializer(three_last_banners, many=True)
         return Response(banner_serializer.data, status_code.HTTP_200_OK)
 
 
