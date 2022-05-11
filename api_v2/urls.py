@@ -1,6 +1,6 @@
 from django.urls import path
 
-from api_v2.views import CancelTransactionAPI, CheckUserSpecialAccount, CheckUserTransactionStatus, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
+from api_v2.views import CancelTransactionAPI, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
     EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
     LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, RegisterUserAPI, SeenAllUserMessage, SendReceiptImageAPI, \

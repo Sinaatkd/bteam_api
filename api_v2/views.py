@@ -8,7 +8,7 @@ from rest_framework.generics import CreateAPIView
 from banner.models import Banner
 from signals.models import FuturesSignal, SpotSignal, Target
 
-from utilities import calculate_profit_of_signals, diff_between_two_dates, generate_token, get_now_jalali_date, get_random_string, send_notification, send_sms, send_verification_code
+from utilities import calculate_profit_of_signals, generate_token, get_now_jalali_date, get_random_string, send_notification, send_sms, send_verification_code
 
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -23,7 +23,7 @@ from .serializer import (BannerSerializer, CheckDiscountCodeSerializer, Discount
                          UserLoginWithPasswordSerializer, UserMessageSerializer,
                          UserRegisterSerializer,
                          UserSerializer)
-from account.models import Device, User, UserCashWithdrawal, UserGift, UserGiftLog, UserMessage, VerificationCode
+from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserMessage, VerificationCode
 from special_account_item.models import SpecialAccountItem
 from transaction.models import DiscountCode, Transaction
 
