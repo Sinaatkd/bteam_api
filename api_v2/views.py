@@ -542,3 +542,23 @@ class CreateUserCashWithdrawalAPI(CreateAPIView):
         user.wallet -= int(amount)
         user.save()
         return super().create(request, *args, **kwargs)
+
+
+class SeenAllSignalNews(APIView):
+    def get(self, request):
+        signal_id = request.query_params.get('signal_id', None)
+        kind = request.query_params.get('kind', None)
+        if kind == 'futures':
+            signal = FuturesSignal.objects.filter(id=signal_id).first()
+            if signal is not None:
+                for news in signal.signal_news.all():
+                    news.seen_by.add(request.user)
+                    news.save()
+        else:
+            signal = SpotSignal.objects.filter(id=signal_id).first()
+            if signal is not None:
+                for news in signal.signal_news.all():
+                    news.seen_by.add(request.user)
+                    news.save()
+
+        return Response({'message': 'ok'})

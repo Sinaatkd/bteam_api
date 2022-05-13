@@ -3,7 +3,7 @@ from django.urls import path
 from api_v2.views import CancelTransactionAPI, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
     EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
-    LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, RegisterUserAPI, SeenAllUserMessage, SendReceiptImageAPI, \
+    LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, RegisterUserAPI, SeenAllSignalNews, SeenAllUserMessage, SendReceiptImageAPI, \
     SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats, GetThreeLastBanners
 
 urlpatterns = [
@@ -23,6 +23,7 @@ urlpatterns = [
     path('check-discount-code/', CheckDiscountCodeAPI.as_view()),
     path('send-receipt/<int:pk>/', SendReceiptImageAPI.as_view()),
     path('signals/futures/', GetAllActiveFuturesSignals.as_view()),
+    path('signals/news/', SeenAllSignalNews.as_view()),
     path('signals/futures/deactive/', DeactiveFuturesSignal.as_view()),
     path('signals/spot/', GetAllActiveSpotSignals.as_view()),
     path('signals/spot/deactive/', DeactiveSpotSignal.as_view()),

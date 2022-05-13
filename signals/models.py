@@ -1,6 +1,6 @@
-from pyexpat import model
 from django.db import models
 from base_model.models import BaseModel, IntegerRangeField
+from account.models import User
 
 
 class SignalAlarm(BaseModel):
@@ -12,6 +12,7 @@ class SignalAlarm(BaseModel):
 
 class SignalNews(BaseModel):
     content = models.CharField(max_length=120)
+    seen_by = models.ManyToManyField(User)
 
     def __str__(self):
         return self.content
