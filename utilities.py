@@ -13,7 +13,7 @@ import requests
 from django.db.models import Sum
 from rest_framework.authtoken.models import Token
 from account.models import VerificationCode, User
-from signals.models import FuturesSignal, SpotSignal
+from signals.models import FuturesSignal, SpotSignal, Target
 
 
 def send_sms(pattern, phone_number, variables):
@@ -60,31 +60,32 @@ def send_to_users_iphones_or_web_platform(title, content):
 
 
 def send_notification(title, content, is_send_sms=True):
-    TOKEN = '0516638bac652996d133bc0f9208882694a6e8e5'
-    APP_ID = '5ej1mqy1nkorv2ye'
+    # TOKEN = '0516638bac652996d133bc0f9208882694a6e8e5'
+    # APP_ID = '5ej1mqy1nkorv2ye'
 
-    url = f'https://api.pushe.co/v2/messaging/notifications/'
+    # url = f'https://api.pushe.co/v2/messaging/notifications/'
 
-    headers = {
-        'Authorization': f'Token {TOKEN}',
-        'Content-Type': 'application/json'
-    }
+    # headers = {
+    #     'Authorization': f'Token {TOKEN}',
+    #     'Content-Type': 'application/json'
+    # }
 
-    payload = json.dumps({
-        'app_ids': APP_ID,
-        'data': {
-            'title': title,
-            'content': content
-        }
-    })
+    # payload = json.dumps({
+    #     'app_ids': APP_ID,
+    #     'data': {
+    #         'title': title,
+    #         'content': content
+    #     }
+    # })
 
-    requests.post(url, data=payload, headers=headers)
+    # requests.post(url, data=payload, headers=headers)
 
-    if is_send_sms:
-        thread = threading.Thread(
-            target=send_to_users_iphones_or_web_platform, args=(title, content, ))
-        thread.start()
+    # if is_send_sms:
+    #     thread = threading.Thread(
+    #         target=send_to_users_iphones_or_web_platform, args=(title, content, ))
+    #     thread.start()
 
+    pass
 
 def diff_between_two_dates(d1, d2):
     date_format = "%m/%d/%Y, %H:%M:%S"
@@ -141,3 +142,11 @@ def calculate_profit_of_signals(time_range):
             spot_signal.profit_of_signal_amount
 
     return profit_value
+
+
+def is_first_target_touched(signal, target):
+    return signal.targets.all().first().id == target.id
+
+
+def get_prev_touched_target(signal):
+    return signal.targets.filter(is_touched=True).last()

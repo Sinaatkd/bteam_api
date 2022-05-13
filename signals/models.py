@@ -39,7 +39,7 @@ class SpotSignal(BaseModel):
     entry = models.FloatField()
     is_touched_entry = models.BooleanField(default=False)
     status = models.CharField(max_length=250, null=True, blank=True)
-    alarms = models.ManyToManyField(SignalAlarm)
+    alarms = models.ManyToManyField(SignalAlarm, blank=True)
 
     def __str__(self):
         return self.coin_symbol
@@ -58,7 +58,7 @@ class FuturesSignal(BaseModel):
     entry = models.FloatField()
     is_touched_entry = models.BooleanField(default=False)
     status = models.CharField(max_length=250, null=True, blank=True)
-    alarms = models.ManyToManyField(SignalAlarm)
+    alarms = models.ManyToManyField(SignalAlarm, blank=True)
 
     def __str__(self):
         return self.coin_symbol

@@ -6,9 +6,9 @@ from django.core.files.base import ContentFile
 from django.db.models import Sum
 from rest_framework.generics import CreateAPIView
 from banner.models import Banner
-from signals.models import FuturesSignal, SpotSignal, Target
+from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
-from utilities import calculate_profit_of_signals, generate_token, get_now_jalali_date, get_random_string, send_notification, send_sms, send_verification_code
+from utilities import calculate_profit_of_signals, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
 
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -257,6 +257,7 @@ class GetAllDeactiveSignals(APIView):
 class DeactiveSpotSignal(APIView):
     def get(self, request):
         signal = SpotSignal.objects.get(id=request.query_params.get('id'))
+        last_touched_target = get_prev_touched_target(signal)
         if signal.is_active:
             content = ''
             status = request.query_params.get('status')
@@ -275,7 +276,7 @@ class DeactiveSpotSignal(APIView):
                     signal.is_active = False
                     signal.status = status
                     signal.profit_of_signal_amount = (
-                        (signal.entry - signal.targets.last().amount) / signal.entry) * 100
+                        (signal.entry - last_touched_target.amount) / signal.entry) * 100
                     content = 'فول تارگت'
                     send_notification(f'سیگنال {signal.coin_symbol}', content)
                     send_notification(
@@ -287,6 +288,7 @@ class DeactiveSpotSignal(APIView):
 class DeactiveFuturesSignal(ListAPIView):
     def get(self, request):
         signal = FuturesSignal.objects.get(id=request.query_params.get('id'))
+        last_touched_target = get_prev_touched_target(signal)
         if signal.is_active:
             status = request.query_params.get('status')
             if 'حد ضرر' in status:
@@ -295,20 +297,16 @@ class DeactiveFuturesSignal(ListAPIView):
                     signal.status = status
                     signal.profit_of_signal_amount = 0
                     send_notification(
-                        f'سیگنال {signal.coin_symbol}', 'حد ضرر فعال شد')
-                    send_notification(
-                        f'سیگنال {signal.coin_symbol}', 'بسته شد')
+                        f'سیگنال {signal.coin_symbol}', status)
 
             else:
-                if signal.targets.last().is_touched:
-                    signal.is_active = False
-                    signal.status = status
-                    signal.profit_of_signal_amount = (
-                        ((signal.entry - signal.targets.last().amount) / signal.entry) * 100) * signal.leverage
-                    send_notification(
-                        f'سیگنال {signal.coin_symbol}', 'فول تارگت')
-                    send_notification(
-                        f'سیگنال {signal.coin_symbol}', 'بسته شد')
+                signal.is_active = False
+                signal.status = status
+                signal.profit_of_signal_amount = abs((
+                    ((signal.entry - last_touched_target.amount) / signal.entry) * 100) * signal.leverage)
+                send_notification(
+                    f'سیگنال {signal.coin_symbol}', status)
+            send_notification(f'سیگنال {signal.coin_symbol}', 'بسته شد')
             signal.save()
         return Response({'message': 'ok'}, 200)
 
@@ -316,7 +314,11 @@ class DeactiveFuturesSignal(ListAPIView):
 class SetTouchTarget(ListAPIView):
     def get(self, request):
         kind = request.query_params.get('kind')
+        selected_target = Target.objects.get(id=request.query_params.get('id'))
         global title
+        global content
+        content = f'{selected_target.title} تاچ شد'
+        
         if kind == 'spot':
             signal = SpotSignal.objects.get(
                 id=request.query_params.get('signal_id'))
@@ -325,12 +327,25 @@ class SetTouchTarget(ListAPIView):
             signal = FuturesSignal.objects.get(
                 id=request.query_params.get('signal_id'))
             title = f'سیگنال {signal.coin_symbol}'
+            
 
-        selected_target = Target.objects.get(id=request.query_params.get('id'))
+        if is_first_target_touched(signal, selected_target):
+            signal.alarms.add(SignalAlarm.objects.create(title='ریسک فری! حدضرر را نقطه ورود تنطیم کنید'))
+            signal.stop_loss = signal.entry
+            signal.save()
+            content += ' - رعایت ریسک فری'
+        else:
+            prev_touched_target = get_prev_touched_target(signal)
+            alarm = signal.alarms.filter(title__icontains='ریسک فری').first()
+            alarm.title = f'ریسک فری! حدضرر را {prev_touched_target.title} تنطیم کنید'
+            alarm.save()
+            signal.stop_loss = prev_touched_target.amount
+            signal.save()
+
         if not selected_target.is_touched:
             selected_target.is_touched = True
             selected_target.save()
-            send_notification(title, f'{selected_target.title} تاچ شد')
+            send_notification(title, content)
         return Response({'message': 'ok'}, 200)
 
 

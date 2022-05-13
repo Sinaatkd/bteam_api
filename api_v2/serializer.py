@@ -6,7 +6,7 @@ from account.models import Device, User, UserCashWithdrawal, UserGift, UserGiftL
 from banner.models import Banner
 from news.models import News
 from django.utils.timezone import now
-from signals.models import FuturesSignal, SignalNews, SpotSignal, Target
+from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
 from transaction.models import Transaction, DiscountCode
 from special_account_item.models import SpecialAccountItem
 from utilities import generate_token
@@ -44,7 +44,8 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         if invater is not None:
             invater.invated_users.add(user)
             if invater.invated_users.all().count() % 7 == 0:
-                UserGift.objects.create(user=invater, gift_type='blue-b', for_what="register")
+                UserGift.objects.create(
+                    user=invater, gift_type='blue-b', for_what="register")
         self.context['request'].user = user
         return user
 
@@ -52,7 +53,6 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginWithPasswordSerializer(serializers.ModelSerializer):
     phone_number = serializers.IntegerField()
     device_uuid = serializers.CharField()
-
 
     class Meta:
         model = User
@@ -124,14 +124,16 @@ class UserLoginVerificationCodeSerializer(serializers.ModelSerializer):
     def validate_phone_number(self, phone_number):
         user = User.objects.filter(phone_number=phone_number).first()
         if user is None:
-            raise serializers.ValidationError('This phone number dose not exists.')
+            raise serializers.ValidationError(
+                'This phone number dose not exists.')
         return phone_number
 
 
 class NewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = News
-        fields = ['title', 'short_description', 'description', 'updated_time', 'img']
+        fields = ['title', 'short_description',
+                  'description', 'updated_time', 'img']
 
 
 class SpecialAccountItemSerializer(serializers.ModelSerializer):
@@ -153,6 +155,7 @@ class DiscountCodeSerializer(serializers.ModelSerializer):
         model = DiscountCode
         fields = ['code', 'percentage']
 
+
 class UserMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMessage
@@ -162,9 +165,9 @@ class UserMessageSerializer(serializers.ModelSerializer):
 class CheckDiscountCodeSerializer(serializers.Serializer):
     code = serializers.CharField()
 
-    
     def validate_code(self, code):
-        this_code = DiscountCode.objects.filter(code=code, is_active=True, validity_date__gt=datetime.now()).first()
+        this_code = DiscountCode.objects.filter(
+            code=code, is_active=True, validity_date__gt=datetime.now()).first()
         if this_code is None:
             raise serializers.ValidationError('This code dose not exists.')
         if this_code.count <= 0:
@@ -175,6 +178,7 @@ class CheckDiscountCodeSerializer(serializers.Serializer):
         this_code.save()
         self.context['request'].discount_code = this_code
         return code
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -191,31 +195,43 @@ class TransactionSerializer(serializers.ModelSerializer):
             transaction.save()
         else:
             transaction = Transaction.objects.create(**validated_data)
-            
-        return transaction 
+
+        return transaction
+
 
 class SignalNewsSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignalNews
         fields = '__all__'
 
+
+class SignalAlarmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignalAlarm
+        fields = ['id', 'title']
+
+
 class SignalTargetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Target
         fields = '__all__'
 
+
 class FuturesSignalSerializer(serializers.ModelSerializer):
     targets = SignalTargetSerializer(many=True, read_only=True)
     signal_news = SignalNewsSerializer(many=True, read_only=True)
-    
+    alarms = SignalAlarmSerializer(many=True, read_only=True)
+
     class Meta:
         model = FuturesSignal
         fields = '__all__'
 
+
 class SpotSignalSerializer(serializers.ModelSerializer):
     targets = SignalTargetSerializer(many=True, read_only=True)
     signal_news = SignalNewsSerializer(many=True, read_only=True)
-    
+    alarms = SignalAlarmSerializer(many=True, read_only=True)
+
     class Meta:
         model = SpotSignal
         fields = '__all__'
@@ -228,12 +244,12 @@ class BannerSerializer(serializers.ModelSerializer):
 
 
 class UserGiftLogSerializer(serializers.ModelSerializer):
-    class  Meta:
+    class Meta:
         model = UserGiftLog
         fields = '__all__'
 
 
 class UserCashWithdrawalSerializer(serializers.ModelSerializer):
-    class  Meta:
+    class Meta:
         model = UserCashWithdrawal
         fields = '__all__'
