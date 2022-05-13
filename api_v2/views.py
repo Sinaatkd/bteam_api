@@ -8,7 +8,7 @@ from rest_framework.generics import CreateAPIView
 from banner.models import Banner
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
-from utilities import calculate_profit_of_signals, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
+from utilities import calculate_profit_of_signals, diff_between_two_dates, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
 
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -561,4 +561,52 @@ class SeenAllSignalNews(APIView):
                     news.seen_by.add(request.user)
                     news.save()
 
+        return Response({'message': 'ok'})
+
+    
+class CheckUserTransactionStatus(APIView):
+    def get(self, request):
+        transactions = Transaction.objects.filter(
+            is_send_receipt=True, is_confirmation=False)
+        for transaction in transactions:
+            # minutes
+            result = diff_between_two_dates(
+                now(), transaction.last_updated_time).seconds / 60
+            if result >= 3 and transaction.transaction_status != 'در صف ورود' and transaction.transaction_status != 'ارسال به مرکز کنترل' and transaction.transaction_status != 'در حال بررسی':
+                transaction.transaction_status = 'در صف ورود'
+                transaction.last_updated_time = now()
+                transaction.save()
+            elif result >= 5 and transaction.transaction_status == 'در صف ورود':
+                transaction.transaction_status = 'ارسال به مرکز کنترل'
+                transaction.last_updated_time = now()
+                transaction.save()
+            elif result >= 30 and transaction.transaction_status == 'ارسال به مرکز کنترل':
+                transaction.transaction_status = 'در حال بررسی'
+                transaction.last_updated_time = now()
+                transaction.save()
+        return Response({'message': 'ok'})
+
+
+class CheckUserSpecialAccount(APIView):
+    def get(self, request):
+        transactions = Transaction.objects.filter(is_confirmation=True)
+        for transaction in transactions:
+            result = diff_between_two_dates(
+                transaction.date_of_approval + timedelta(transaction.validity_rate + 1), now()).days
+            if result == 10:
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
+            elif result == 5:
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
+            elif result == 3:
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
+            elif result == 1:
+                send_sms('np5tviaoag', str(transaction.user.phone_number), {
+                         'date_cnt': str(result)})
+            elif result <= 0:
+                send_sms('3egblee8ys', str(transaction.user.phone_number), {
+                         'name': transaction.user.full_name.split()[0]})
+                transaction.delete()
         return Response({'message': 'ok'})
