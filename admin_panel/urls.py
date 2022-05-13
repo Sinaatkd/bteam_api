@@ -6,9 +6,9 @@ from admin_panel.views.auth_view import admin_login
 from admin_panel.views.cash_withdrawal_view import CashWithdrawalList, confirm_cash_withdrawal, delete_cash_withdrawal
 from admin_panel.views.news_view import NewsList, add_new, delete_news
 from admin_panel.views.special_account_view import SpecialAccountItemList, add_special_account, delete_special_account
-from .views.spot_signal_view import SpotSignalsList, delete_spot_signal, detail_spot ,close_spot_signal ,add_spot_target ,add_spot_news ,add_spot_signal
+from .views.spot_signal_view import SpotSignalsList, add_spot_alarm, delete_spot_signal, detail_spot ,close_spot_signal ,add_spot_target ,add_spot_news ,add_spot_signal
 from .views.gift_view import UsersList as UserListGifts, deactive_user_gift, user_gifts_detail, active_user_gift, add_gift
-from .views.futures_signal_view import FuturesSignalsList, add_futures_news, add_futures_signal, add_futures_target, close_futures_signal, delete_futures_signal, detail_futures
+from .views.futures_signal_view import FuturesSignalsList, add_futures_alarm, add_futures_news, add_futures_signal, add_futures_target, close_futures_signal, delete_futures_alarm, delete_futures_signal, detail_futures
 from .views.transaction_view import DiscountCodesList, TransactionsList, add_discount_code, active_discount_code, confirm_transaction, deactive_discount_code, set_private_discount, set_public_discount, unconfirm_transaction
 from .views.user_views import UsersList, delete_user, add_user_message, home_page, remove_device_uuid, user_edit, deactivate_user, activate_user, set_user_permission
 
@@ -43,6 +43,8 @@ urlpatterns = [
     path('signals/futures/close/<futures_id>/', login_required(close_futures_signal), name='close_futures_signal'),
     path('signals/futures/add-target/', login_required(add_futures_target), name='add_futures_target'),
     path('signals/futures/add-news/', login_required(add_futures_news), name='add_futures_news'),
+    path('signals/futures/add-alarm/', login_required(add_futures_alarm), name='add_futures_alarm'),
+    path('signals/delete-alarm/<alarm_id>/', login_required(delete_futures_alarm), name='delete_alarm'),
     path('signals/futures/add/', login_required(add_futures_signal), name='add_futures_signal'),
     path('signals/spot/', login_required(SpotSignalsList.as_view()), name='signal_spot_list'),
     path('signals/spot/detail/<spot_id>/', login_required(detail_spot), name='detail_spot'),
@@ -50,6 +52,7 @@ urlpatterns = [
     path('signals/spot/close/<spot_id>/', login_required(close_spot_signal), name='close_spot_signal'),
     path('signals/spot/add-target/', login_required(add_spot_target), name='add_spot_target'),
     path('signals/spot/add-news/', login_required(add_spot_news), name='add_spot_news'),
+    path('signals/spot/add-alarm/', login_required(add_spot_alarm), name='add_spot_alarm'),
     path('signals/spot/add/', login_required(add_spot_signal), name='add_spot_signal'),
     path('gifts/user-list/', UserListGifts.as_view(), name='gifst_user_list'),
     path('gifts/user/<int:user_id>/detail/', user_gifts_detail, name='user_gifst_detail'),

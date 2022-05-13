@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from admin_panel.decorators import check_group
 from utilities import send_notification
 
-from signals.models import SpotSignal, SignalNews, Target
+from signals.models import SignalAlarm, SpotSignal, SignalNews, Target
 
 class SpotSignalsList(ListView):
     queryset = SpotSignal.objects.all().order_by('-id')
@@ -20,6 +20,16 @@ def detail_spot(request, spot_id):
 
     return render(request, 'spot_signals/spot_detail.html', context)
 
+
+@check_group('دسترسی به سیگنال')
+def add_spot_alarm(request):
+    if request.method == 'POST':
+        spot_id = request.POST.get('spot_id')
+        title = request.POST.get('title')
+        selected_futures = SpotSignal.objects.get(id=spot_id)
+        selected_futures.alarms.add(SignalAlarm.objects.create(title=title))
+        send_notification(f'سیگنال {selected_futures.coin_symbol}', title=title, is_send_sms=False)
+    return redirect(request.META.get('HTTP_REFERER'))
 
 @check_group('دسترسی به سیگنال')
 def delete_spot_signal(request, spot_id):

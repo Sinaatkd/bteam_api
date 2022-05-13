@@ -3,7 +3,7 @@ from django.views.generic import ListView
 from admin_panel.decorators import check_group
 from utilities import send_notification
 
-from signals.models import FuturesSignal, SignalNews, Target
+from signals.models import FuturesSignal, SignalAlarm, SignalNews, Target
 
 class FuturesSignalsList(ListView):
     queryset = FuturesSignal.objects.all().order_by('-id')
@@ -36,6 +36,22 @@ def close_futures_signal(request, futures_id):
 def delete_futures_signal(request, futures_id):
     selected_futures = FuturesSignal.objects.get(id=futures_id)
     selected_futures.delete()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+@check_group('دسترسی به سیگنال')
+def add_futures_alarm(request):
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        futures_id = int(request.POST.get('futures_id'))
+        selected_futures = FuturesSignal.objects.get(id=futures_id)
+        selected_futures.alarms.add(SignalAlarm.objects.create(title=title))
+        send_notification(f'سیگنال {selected_futures.coin_symbol}', title=title, is_send_sms=False)
+    return redirect(request.META.get('HTTP_REFERER'))
+
+@check_group('دسترسی به سیگنال')
+def delete_futures_alarm(request, alarm_id):
+    selcted_alarm = SignalAlarm.objects.filter(id=alarm_id).first()
+    selcted_alarm.delete()
     return redirect(request.META.get('HTTP_REFERER'))
 
 @check_group('دسترسی به سیگنال')
