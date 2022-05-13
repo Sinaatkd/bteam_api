@@ -216,21 +216,28 @@ class GetAllDeactiveSignals(APIView):
 
         range_date = today - timedelta(days=days)
         deactives_futures_signals = FuturesSignal.objects.filter(
-            is_active=False, created_time__range=[range_date, today])
+            is_active=False, created_time__range=[range_date, today]).order_by('-id')
+            
         deactives_spot_signals = SpotSignal.objects.filter(
-            is_active=False, created_time__range=[range_date, today])
+            is_active=False, created_time__range=[range_date, today]).order_by('-id')
+            
         closed_with_profit_count = deactives_futures_signals.filter(
             status='فول تارگت').count() + deactives_spot_signals.filter(status='فول تارگت').count()
+            
         closed_at_loss_count = deactives_futures_signals.filter(status='حد ضرر فعال شد').count(
         ) + deactives_spot_signals.filter(status='حد ضرر فعال شد').count()
+        
         voided_count = deactives_futures_signals.filter(status='باطل شد').count(
         ) + deactives_spot_signals.filter(status='باطل شد').count()
+        
         risk_free_count = deactives_futures_signals.filter(status__icontains='ریسک فری').count(
         ) + deactives_spot_signals.filter(status__icontains='ریسک فری').count()
+        
         spot_sum = SpotSignal.objects.filter(is_active=False).aggregate(
             Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if spot_sum is None:
             spot_sum = 0
+
         futures_sum = FuturesSignal.objects.filter(is_active=False).aggregate(
             Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if futures_sum is None:
