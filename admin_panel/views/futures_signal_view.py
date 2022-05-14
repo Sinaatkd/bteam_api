@@ -45,7 +45,7 @@ def add_futures_alarm(request):
         futures_id = int(request.POST.get('futures_id'))
         selected_futures = FuturesSignal.objects.get(id=futures_id)
         selected_futures.alarms.add(SignalAlarm.objects.create(title=title))
-        send_notification(f'سیگنال {selected_futures.coin_symbol}', title=title, is_send_sms=False)
+        send_notification(title=f'سیگنال {selected_futures.coin_symbol}', content=title, is_send_sms=False)
     return redirect(request.META.get('HTTP_REFERER'))
 
 @check_group('دسترسی به سیگنال')

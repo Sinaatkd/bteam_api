@@ -26,9 +26,9 @@ def add_spot_alarm(request):
     if request.method == 'POST':
         spot_id = request.POST.get('spot_id')
         title = request.POST.get('title')
-        selected_futures = SpotSignal.objects.get(id=spot_id)
-        selected_futures.alarms.add(SignalAlarm.objects.create(title=title))
-        send_notification(f'سیگنال {selected_futures.coin_symbol}', title=title, is_send_sms=False)
+        selected_spot = SpotSignal.objects.get(id=spot_id)
+        selected_spot.alarms.add(SignalAlarm.objects.create(title=title))
+        send_notification(title=f'سیگنال {selected_spot.coin_symbol}', content=title, is_send_sms=False)
     return redirect(request.META.get('HTTP_REFERER'))
 
 @check_group('دسترسی به سیگنال')
