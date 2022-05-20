@@ -14,6 +14,7 @@ from django.db.models import Sum
 from rest_framework.authtoken.models import Token
 from account.models import VerificationCode, User
 from signals.models import FuturesSignal, SpotSignal, Target
+from transaction.models import Transaction
 
 
 def send_sms(pattern, phone_number, variables):
@@ -50,13 +51,14 @@ def generate_token(user):
 
 
 def send_to_users_iphones_or_web_platform(title, content):
-    for user in User.objects.all():
-        try:
-            if user.device.operating_system == 'ios' or user.device.platform == 'web':
-                send_sms('8vgnui3wcy', user.phone_number, {
-                         'coin_symbol': title.split(' ')[1], 'content': content})
-        except:
-            pass
+    for transaction in Transaction.objects.all():
+        for user in transaction.user.all():
+            try:
+                if user.device.operating_system == 'ios' or user.device.platform == 'web':
+                    send_sms('8vgnui3wcy', user.phone_number, {
+                            'coin_symbol': title.split(' ')[1], 'content': content})
+            except:
+                pass
 
 
 def send_notification(title, content, is_send_sms=True):
