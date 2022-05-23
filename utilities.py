@@ -52,11 +52,11 @@ def generate_token(user):
 
 def send_to_users_iphones_or_web_platform(title, content):
     for transaction in Transaction.objects.all():
-        for user in transaction.user.all():
+        user = transaction.user
+        if user.device.operating_system == 'ios' or user.device.platform == 'web':
             try:
-                if user.device.operating_system == 'ios' or user.device.platform == 'web':
-                    send_sms('8vgnui3wcy', user.phone_number, {
-                            'coin_symbol': title.split(' ')[1], 'content': content})
+                send_sms('8vgnui3wcy', user.phone_number, {
+                    'coin_symbol': title.split(' ')[1], 'content': content})
             except:
                 pass
 
@@ -86,6 +86,7 @@ def send_notification(title, content, is_send_sms=True):
         thread = threading.Thread(
             target=send_to_users_iphones_or_web_platform, args=(title, content, ))
         thread.start()
+
 
 def diff_between_two_dates(d1, d2):
     date_format = "%m/%d/%Y, %H:%M:%S"
