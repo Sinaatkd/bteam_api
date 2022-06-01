@@ -97,8 +97,13 @@ def add_discount_code(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 class TransactionsList(ListView):
-    queryset = Transaction.objects.all().order_by('is_confirmation')
+    queryset = Transaction.objects.filter(is_confirmation=False).order_by('-id')
     template_name = 'transactions/transactions_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(TransactionsList, self).get_context_data(**kwargs)
+        context['unconfirmed_transactions'] = Transaction.objects.filter(is_confirmation=True).order_by('-id')
+        return context
 
 class DiscountCodesList(ListView):
     queryset = DiscountCode.objects.all().order_by('-is_active')

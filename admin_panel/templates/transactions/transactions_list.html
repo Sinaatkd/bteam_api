@@ -40,8 +40,6 @@
                                         <th>جزئیات</th>
                                     </tr>
                                     {% for transaction in object_list %}
-                                    
-                                    {% if not transaction.is_confirmation %}
                                     <tr>
                                         <td>{{ transaction.id }}</td>
                                         <td>{{ transaction.user.full_name }}</td>
@@ -57,8 +55,6 @@
                                                 class="btn btn-primary">مشاهده</a>
                                         </td>
                                     </tr>
-                                    {% endif %}
-                                        
                                     {% endfor %}
                                 </tbody>
                             </table>
@@ -84,9 +80,7 @@
                                         <th>نام مشاور</th>
                                         <th>جزئیات</th>
                                     </tr>
-                                    {% for transaction in object_list %}
-                                    {% if transaction.is_confirmation %}                                        
-                                    
+                                    {% for transaction in unconfirmed_transactions %}
                                     <tr>
                                         <td>{{ transaction.id }}</td>
                                         <td>{{ transaction.user.full_name }}</td>
@@ -102,7 +96,6 @@
                                             class="btn btn-primary">مشاهده</a>
                                         </td>
                                     </tr>
-                                    {% endif %}
                                     {% endfor %}
                                     </tbody>
                             </table>

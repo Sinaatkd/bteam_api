@@ -4,6 +4,7 @@ from django.urls import path
 from django.contrib.auth.decorators import login_required
 from admin_panel.views.auth_view import admin_login
 from admin_panel.views.cash_withdrawal_view import CashWithdrawalList, confirm_cash_withdrawal, delete_cash_withdrawal
+from admin_panel.views.financial_view import finanical_statistics
 from admin_panel.views.news_view import NewsList, add_new, delete_news
 from admin_panel.views.special_account_view import SpecialAccountItemList, add_special_account, delete_special_account
 from .views.spot_signal_view import SpotSignalsList, add_spot_alarm, delete_spot_signal, detail_spot ,close_spot_signal ,add_spot_target ,add_spot_news ,add_spot_signal
@@ -62,6 +63,7 @@ urlpatterns = [
     path('cash-withdrawals/', CashWithdrawalList.as_view(), name='cash_withdrawal_list'),
     path('cash-withdrawals/confirm/<id>', confirm_cash_withdrawal, name='confirm_cash_withdrawal'),
     path('cash-withdrawals/delete/<id>', delete_cash_withdrawal, name='delete_cash_withdrawal'),
+    path('finanical-statistics/', finanical_statistics, name='financial_statistics'),
     path('login', admin_login, name='admin_login'),
 
 ]

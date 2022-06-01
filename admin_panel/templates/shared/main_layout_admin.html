@@ -185,6 +185,16 @@
                 </a>
               </li>
               {% endif %}
+              {% if request.user|has_group:'مالی' %}
+              <li class="nav-item">
+                <a href="{% url 'financial_statistics' %}" class="nav-link">
+                  <i class="nav-icon fa fa-money"></i>
+                  <p>
+                    مالی
+                  </p>
+                </a>
+              </li>
+              {% endif %}
             </ul>
           </nav>
           <!-- /.sidebar-menu -->

@@ -1,0 +1,71 @@
+{% extends "shared/main_layout_admin.html" %}
+
+
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-4">
+                    <h1 class="m-0 text-dark">تراکنش ها</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-4">
+                    <h1 class="m-0 text-dark">مجموع درآمد ها: {{ sum_transactions_amount }}</h1>
+                </div><!-- /.col -->
+                <div class="col-sm-4">
+                    <h1 class="m-0 text-dark">مجموع فروش: {{ all_transactions }}</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">جزئیات</h3>
+                            <br>
+                            <form>
+                                <input type="text" class="form-control col-md-4 col-sm-6 w-100"
+                                    placeholder="**/**/****" name="date" value="{{request.GET.date}}">
+                            </form>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>تعداد فروش</th>
+                                        <th>مجموع درآمد</th>
+                                    </tr>
+                                    {% for user in data %}
+                                    <tr>
+                                        <td>{{ user.id }}</td>
+                                        <td>{{ user.full_name }}</td>
+                                        <td>{{ user.count }}</td>
+                                        <td>{{ user.amount_sum }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row (main row) -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock content %}
