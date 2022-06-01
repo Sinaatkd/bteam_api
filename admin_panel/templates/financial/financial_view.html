@@ -8,14 +8,14 @@
     <div class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
-                <div class="col-sm-4">
+                <div class="col-md-4 col-sm-12">
                     <h1 class="m-0 text-dark">تراکنش ها</h1>
                 </div><!-- /.col -->
-                <div class="col-sm-4">
-                    <h1 class="m-0 text-dark">مجموع درآمد ها: {{ sum_transactions_amount }}</h1>
+                <div class="col-md-4 col-sm-12">
+                    <h5 class="m-0 text-dark">مجموع درآمد ها: {{ sum_transactions_amount }}</h5>
                 </div><!-- /.col -->
-                <div class="col-sm-4">
-                    <h1 class="m-0 text-dark">مجموع فروش: {{ all_transactions }}</h1>
+                <div class="col-md-4 col-sm-12">
+                    <h5 class="m-0 text-dark">مجموع فروش: {{ all_transactions }}</h5>
                 </div><!-- /.col -->
             </div><!-- /.row -->
         </div><!-- /.container-fluid -->
@@ -33,8 +33,8 @@
                             <h3 class="card-title">جزئیات</h3>
                             <br>
                             <form>
-                                <input type="text" class="form-control col-md-4 col-sm-6 w-100"
-                                    placeholder="**/**/****" name="date" value="{{request.GET.date}}">
+                                <input type="text" class="form-control col-md-4 col-sm-6 w-100" placeholder="**/**/****"
+                                    name="date" value="{{request.GET.date}}">
                             </form>
                         </div>
                         <!-- /.card-header -->
@@ -46,6 +46,8 @@
                                         <th>نام و نام خانوادگی</th>
                                         <th>تعداد فروش</th>
                                         <th>مجموع درآمد</th>
+                                        <th>موجودی کیف پول</th>
+                                        <th>جزئیات</th>
                                     </tr>
                                     {% for user in data %}
                                     <tr>
@@ -53,6 +55,54 @@
                                         <td>{{ user.full_name }}</td>
                                         <td>{{ user.count }}</td>
                                         <td>{{ user.amount_sum }}</td>
+                                        <td>
+                                            <form action="{% url 'edit_wallet' %}" method="GET">
+                                                <input type="hidden" name="user_id" value="{{user.id}}">
+                                                <input type="number" class="form-control col-12 w-100"
+                                                    value="{{ user.wallet }}" name="value">
+                                            </form>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-primary" type="button" data-toggle="collapse"
+                                                data-target="#{{user.id}}" aria-expanded="false"
+                                                aria-controls="{{user.id}}">
+                                                جزئیات
+                                            </button>
+
+                                            <div class="collapse m-2" id="{{ user.id }}">
+                                                <div class="card card-body w-100">
+                                                    <div class="card-body table-responsive p-0">
+                                                        <table class="table table-hover">
+                                                            <tbody>
+                                                                <tr>
+                                                                    <th>شناسه</th>
+                                                                    <th>نام و نام خانوادگی</th>
+                                                                    <th>مبلغ واریزی</th>
+                                                                    <th>تاریخ</th>
+                                                                    <th>فیش</th>
+                                                                </tr>
+                                                                {% for transaction in user.transactions %}
+                                                                <tr>
+                                                                    <td>{{ transaction.id }}</td>
+                                                                    <td>{{ transaction.user.full_name }}</td>
+                                                                    <td>{{ transaction.amount }}</td>
+                                                                    <td>{{ transaction.last_updated_time }}</td>
+                                                                    <td>
+                                                                        {% if transaction.payment_receipt %}
+                                                                        <a target="blank" href="{{ transaction.payment_receipt.url }}"
+                                                                            class="btn btn-primary">مشاهده</a>
+                                                                        {% else %}
+                                                                        <p>فیشی آپلود نشده است</p>
+                                                                        {% endif %}
+                                                                    </td>
+                                                                </tr>
+                                                                {% endfor %}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>

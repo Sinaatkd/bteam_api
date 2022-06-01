@@ -34,7 +34,7 @@ def finanical_statistics(request):
             transactions_sum_amount = transactions.aggregate(Sum('amount'))[
                 'amount__sum']
             new_data = {'id': user.id, 'full_name': user.full_name,
-                        'count': transactions_count, 'amount_sum': transactions_sum_amount}
+                        'count': transactions_count, 'amount_sum': transactions_sum_amount, 'wallet': user.wallet, 'transactions': transactions}
             context['data'].append(new_data)
 
     return render(request, 'financial/financial_view.html', context)

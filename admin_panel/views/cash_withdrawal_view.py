@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.views.generic.list import ListView
-from account.models import UserCashWithdrawal
+from account.models import User, UserCashWithdrawal
 from admin_panel.decorators import check_group
 from utilities import send_sms
 
@@ -22,6 +22,14 @@ def confirm_cash_withdrawal(request, id):
 def delete_cash_withdrawal(request, id):
     cashWithdrawal = UserCashWithdrawal.objects.filter(id=id).first()
     cashWithdrawal.delete()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+@check_group('مالی')
+def edit_wallet(request):
+    user = User.objects.get(id=request.GET.get('user_id'))
+    user.wallet = request.GET.get('value')
+    user.save()
     return redirect(request.META.get('HTTP_REFERER'))
 
 class CashWithdrawalList(ListView):

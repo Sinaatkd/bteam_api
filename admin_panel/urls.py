@@ -1,12 +1,11 @@
-from unicodedata import name
 from django.urls import path
 
 from django.contrib.auth.decorators import login_required
-from admin_panel.views.auth_view import admin_login
-from admin_panel.views.cash_withdrawal_view import CashWithdrawalList, confirm_cash_withdrawal, delete_cash_withdrawal
-from admin_panel.views.financial_view import finanical_statistics
-from admin_panel.views.news_view import NewsList, add_new, delete_news
-from admin_panel.views.special_account_view import SpecialAccountItemList, add_special_account, delete_special_account
+from .views.auth_view import admin_login
+from .views.cash_withdrawal_view import CashWithdrawalList, confirm_cash_withdrawal, delete_cash_withdrawal, edit_wallet
+from .views.financial_view import finanical_statistics
+from .views.news_view import NewsList, add_new, delete_news
+from .views.special_account_view import SpecialAccountItemList, add_special_account, delete_special_account
 from .views.spot_signal_view import SpotSignalsList, add_spot_alarm, delete_spot_signal, detail_spot ,close_spot_signal ,add_spot_target ,add_spot_news ,add_spot_signal
 from .views.gift_view import UsersList as UserListGifts, deactive_user_gift, user_gifts_detail, active_user_gift, add_gift
 from .views.futures_signal_view import FuturesSignalsList, add_futures_alarm, add_futures_news, add_futures_signal, add_futures_target, close_futures_signal, delete_futures_alarm, delete_futures_signal, detail_futures
@@ -63,6 +62,7 @@ urlpatterns = [
     path('cash-withdrawals/', login_required(CashWithdrawalList.as_view()), name='cash_withdrawal_list'),
     path('cash-withdrawals/confirm/<id>', login_required(confirm_cash_withdrawal), name='confirm_cash_withdrawal'),
     path('cash-withdrawals/delete/<id>', login_required(delete_cash_withdrawal), name='delete_cash_withdrawal'),
+    path('cash-withdrawals/edit-wallet/', login_required(edit_wallet), name='edit_wallet'),
     path('finanical-statistics/', login_required(finanical_statistics), name='financial_statistics'),
     path('login', admin_login, name='admin_login'),
 
