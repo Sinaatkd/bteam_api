@@ -1,8 +1,6 @@
 import datetime
-from random import randint
 from django.db import models
 from django.utils import timezone
-import django.utils.timezone as timezone
 from django.contrib.auth.models import AbstractUser
 from base_model.models import BaseModel
 
@@ -75,24 +73,26 @@ class UserMessage(BaseModel):
 
 
 class UserGift(BaseModel):
-    gift_type = models.CharField(max_length=10, choices=[('red-b', 'red-b'), ('blue-b', 'blue-b'), ('black-b', 'black-b')])
+    gift_type = models.CharField(max_length=10,
+                                 choices=[('red-b', 'red-b'), ('blue-b', 'blue-b'), ('black-b', 'black-b')])
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
     code = models.BigIntegerField(unique=True)
-    for_what = models.CharField(choices=[('register', 'register'), ('buy', 'buy')], max_length=20, null=True, blank=True)
+    for_what = models.CharField(choices=[('register', 'register'), ('buy', 'buy')], max_length=20, null=True,
+                                blank=True)
     transaction = models.ForeignKey('transaction.Transaction', null=True, blank=True, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'{self.user.full_name} - {self.gift_type} - {self.code}'
-        
+
 
 class UserGiftLog(BaseModel):
     title = models.CharField(max_length=1000)
     content = models.CharField(max_length=1000)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    
 
     def __str__(self):
         return f'{self.title} - {self.content}'
+
 
 class UserCashWithdrawal(BaseModel):
     is_confirmation = models.BooleanField(default=False)
@@ -100,7 +100,6 @@ class UserCashWithdrawal(BaseModel):
     bank_card_number = models.PositiveBigIntegerField()
     amount = models.PositiveIntegerField()
     paycode = models.BigIntegerField(null=True, blank=True)
-    
 
     def __str__(self):
         return self.user.username
