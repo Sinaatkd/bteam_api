@@ -5,7 +5,7 @@ from admin_panel.decorators import check_group
 from utilities import send_sms
 
 
-@check_group('دسترسی به کاربران')
+@check_group('مالی')
 def confirm_cash_withdrawal(request, id):
     if request.method == 'POST':
         paycode = request.POST.get('paycode', None) 
@@ -18,7 +18,7 @@ def confirm_cash_withdrawal(request, id):
     return redirect(request.META.get('HTTP_REFERER'))
 
 
-@check_group('دسترسی به کاربران')
+@check_group('مالی')
 def delete_cash_withdrawal(request, id):
     cashWithdrawal = UserCashWithdrawal.objects.filter(id=id).first()
     cashWithdrawal.delete()
