@@ -1,12 +1,14 @@
 from datetime import timedelta
 from django.shortcuts import render
 from django.db.models import Sum
+from admin_panel.decorators import check_group
 from account.models import User
 from transaction.models import Transaction
 
 import jdatetime
 
 
+@check_group('مالی')
 def finanical_statistics(request):
     date_values = request.GET.get('date', None)
     year, month, day = 1, 1, 1
