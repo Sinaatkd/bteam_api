@@ -147,7 +147,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'is_active', 'full_name', 'phone_number', 'national_code', 'from_city', 'amount_of_capital',
                   'familiarity_with_digital_currencies', 'get_to_know_us',
-                  'is_receive_signal_notifications', 'is_receive_news_notifications']
+                  'is_receive_signal_notifications', 'is_receive_news_notifications', 'father_name', 'date_of_birth', 'place_of_issue']
 
 
 class DiscountCodeSerializer(serializers.ModelSerializer):

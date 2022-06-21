@@ -40,6 +40,9 @@ class User(AbstractUser):
     invated_users = models.ManyToManyField('self', blank=True)
     wallet = models.PositiveIntegerField(default=0)
     is_foreigner = models.BooleanField(default=False)
+    father_name = models.CharField(max_length=200, null=True, blank=True)
+    place_of_issue = models.CharField(max_length=100, null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
     first_name = None
     last_name = None
 
