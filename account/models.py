@@ -45,6 +45,9 @@ class User(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     first_name = None
     last_name = None
+    id_card = models.ImageField(upload_to='id_card', null=True, blank=True)
+    face = models.ImageField(upload_to='id_card', null=True, blank=True)
+    is_full_authentication = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username

@@ -135,6 +135,31 @@ class EditUserAPI(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    def put(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if request.data.get('id_card'):
+            try:
+                format, imgstr = request.data.get('id_card').split(';base64,')
+                ext = format.split('/')[-1]
+                id_card = ContentFile(
+                    base64.b64decode(imgstr), name='temp.' + ext)
+                instance.id_card = id_card
+            except:
+                pass
+            del request.data['id_card']
+        if request.data.get('face'):
+            try:
+                format, imgstr = request.data.get('face').split(';base64,')
+                ext = format.split('/')[-1]
+                face = ContentFile(
+                    base64.b64decode(imgstr), name='temp.' + ext)
+                instance.face = face
+            except:
+                pass
+            del request.data['face']
+        instance.save()
+        return super().put(request, *args, **kwargs)
+
 
 class CreateTransactionAPI(APIView):
     def post(self, request):
