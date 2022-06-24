@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'signals',
     'transaction',
     'banner',
+    'copy_trade',
     'admin_panel',
 
     # packages
