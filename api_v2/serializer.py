@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from account.models import Device, User, UserCashWithdrawal, UserGift, UserGiftLog, UserMessage, VerificationCode
 from banner.models import Banner
+from copy_trade.models import Basket, Stage
 from news.models import News
 from django.utils.timezone import now
 from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
@@ -252,4 +253,15 @@ class UserGiftLogSerializer(serializers.ModelSerializer):
 class UserCashWithdrawalSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserCashWithdrawal
+        fields = '__all__'
+
+class StageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Stage
+        fields = '__all__'
+
+class BasketSerializer(serializers.ModelSerializer):
+    stages = StageSerializer(many=True)
+    class Meta:
+        model = Basket
         fields = '__all__'

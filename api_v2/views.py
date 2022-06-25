@@ -1,4 +1,8 @@
+import time
+import hashlib
 import base64
+import hmac
+import requests
 from math import ceil
 from datetime import timedelta, datetime
 from django.utils.timezone import now
@@ -6,7 +10,9 @@ from django.core.files.base import ContentFile
 from django.db.models import Sum
 from rest_framework.generics import CreateAPIView
 from banner.models import Banner
+from copy_trade.models import Basket
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
+
 
 from utilities import calculate_profit_of_signals, diff_between_two_dates, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
 
@@ -16,14 +22,14 @@ from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateAP
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAccountOwner, IsTransactionOwner
-from .serializer import (BannerSerializer, CheckDiscountCodeSerializer, DiscountCodeSerializer, FuturesSignalSerializer,
+from .serializer import (BannerSerializer, BasketSerializer, CheckDiscountCodeSerializer, DiscountCodeSerializer, FuturesSignalSerializer,
                          SpecialAccountItemSerializer, SpotSignalSerializer,
                          TransactionSerializer, UserCashWithdrawalSerializer, UserGiftLogSerializer,
                          UserLoginVerificationCodeSerializer,
                          UserLoginWithPasswordSerializer, UserMessageSerializer,
                          UserRegisterSerializer,
                          UserSerializer)
-from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserMessage, VerificationCode
+from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserKucoinAPI, UserMessage, VerificationCode
 from special_account_item.models import SpecialAccountItem
 from transaction.models import DiscountCode, Transaction
 
@@ -642,3 +648,73 @@ class CheckUserSpecialAccount(APIView):
                          'name': transaction.user.full_name.split()[0]})
                 transaction.delete()
         return Response({'message': 'ok'})
+
+
+class OrderBaskets(ListAPIView):
+    queryset = Basket.objects.filter(is_accept_participant=True)
+    serializer_class = BasketSerializer
+
+
+
+class CheckUserAPIsKucoin(APIView):
+    def post(self, request):
+        futuresAPIKey = request.data.get('futuresAPIKey', 'None')
+        futuresSecret = request.data.get('futuresSecret', 'None')
+        futuresPassphrase = request.data.get('futuresPassphrase', 'None')
+        spotAPIKey = request.data.get('spotAPIKey', 'None')
+        spotSecret = request.data.get('spotSecret', 'None')
+        spotPassphrase = request.data.get('spotPassphrase', 'None')
+
+        if (futuresAPIKey == 'None' or spotAPIKey == 'None') and request.user.user_kucoin_api is not None:
+            user_apis = request.user.user_kucoin_api
+            futuresAPIKey = user_apis.futures_api_key
+            futuresSecret = user_apis.futures_secret
+            futuresPassphrase = user_apis.futures_passphrase
+            spotAPIKey = user_apis.spot_api_key
+            spotSecret = user_apis.spot_secret
+            spotPassphrase = user_apis.spot_passphrase
+
+        api_key = spotAPIKey
+        api_secret = spotSecret
+        api_passphrase = spotPassphrase
+        url = 'https://api.kucoin.com/api/v1/accounts'
+        now = int(time.time() * 1000)
+        str_to_sign = str(now) + 'GET' + '/api/v1/accounts'
+        signature = base64.b64encode(
+            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        headers = {
+            "KC-API-SIGN": signature,
+            "KC-API-TIMESTAMP": str(now),
+            "KC-API-KEY": api_key,
+            "KC-API-PASSPHRASE": passphrase,
+            "KC-API-KEY-VERSION": "2"
+        }
+        spot_response = requests.request('get', url, headers=headers)
+
+        api_key = futuresAPIKey
+        api_secret = futuresSecret
+        api_passphrase = futuresPassphrase
+        url = 'https://api-futures.kucoin.com/api/v1/position?symbol=USDTUSDM'
+        now = int(time.time() * 1000)
+        str_to_sign = str(now) + 'GET' + '/api/v1/position?symbol=USDTUSDM'
+        signature = base64.b64encode(
+            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        headers = {
+            "KC-API-SIGN": signature,
+            "KC-API-TIMESTAMP": str(now),
+            "KC-API-KEY": api_key,
+            "KC-API-PASSPHRASE": passphrase,
+            "KC-API-KEY-VERSION": "2"
+        }
+        futures_response = requests.request('get', url, headers=headers)
+
+        if futures_response.status_code == 200 and spot_response.status_code == 200:
+            user_kocoin_api = UserKucoinAPI.objects.create(futures_api_key=futuresAPIKey, futures_secret=futuresSecret, futures_passphrase=futuresPassphrase,
+             spot_api_key=spotAPIKey, spot_secret=spotSecret, spot_passphrase=spotPassphrase)
+            if request.user.user_kucoin_api is not None:
+                request.user.user_kucoin_api.delete()
+            request.user.user_kucoin_api = user_kocoin_api
+            request.user.save()
+        return Response({'spot': spot_response.status_code, 'futures': futures_response.status_code})

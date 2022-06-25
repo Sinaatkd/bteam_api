@@ -29,6 +29,7 @@ class Basket(models.Model):
     settlement_percentage = models.PositiveIntegerField()
     is_freeze = models.BooleanField(default=False)
     orders_type = models.CharField(max_length=10, choices=(('f', 'futures'), ('s', 'spot')), null=True, blank=True)
+    is_accept_participant = models.BooleanField(default=True)
 
 
     def __str__(self) -> str:

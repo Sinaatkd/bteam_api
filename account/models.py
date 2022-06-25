@@ -20,6 +20,18 @@ class Device(models.Model):
         return self.model
 
 
+class UserKucoinAPI(models.Model):
+    futures_api_key = models.CharField(max_length=1000)
+    futures_secret =  models.CharField(max_length=1000)
+    futures_passphrase = models.CharField(max_length=1000)
+    spot_api_key = models.CharField(max_length=1000)
+    spot_secret =  models.CharField(max_length=1000)
+    spot_passphrase = models.CharField(max_length=1000)
+
+    def __str__(self):
+        return self.futures_api_key
+
+
 class User(AbstractUser):
     full_name = models.CharField(max_length=120)
     phone_number = models.PositiveBigIntegerField(
@@ -48,6 +60,7 @@ class User(AbstractUser):
     id_card = models.ImageField(upload_to='id_card', null=True, blank=True)
     face = models.ImageField(upload_to='id_card', null=True, blank=True)
     is_full_authentication = models.BooleanField(default=False)
+    user_kucoin_api = models.OneToOneField(UserKucoinAPI, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.username
