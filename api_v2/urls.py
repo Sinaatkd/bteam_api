@@ -5,7 +5,7 @@ from api_v2.views import CancelTransactionAPI, CheckUserAPIsKucoin, CreateTransa
     EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
     LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, OrderBaskets, RegisterUserAPI, SeenAllSignalNews, SeenAllUserMessage, SendReceiptImageAPI, \
-    SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats, GetThreeLastBanners
+    SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats, GetThreeLastBanners, joinToBasket
 
 urlpatterns = [
     path('user/', GetUserInfoAPI.as_view()),
@@ -42,6 +42,7 @@ urlpatterns = [
     # copy trade
     path('copy-trade/baskets/', OrderBaskets.as_view()),
     path('copy-trade/check-user-apis/', CheckUserAPIsKucoin.as_view()),
+    path('copy-trade/join/<basket_id>/', joinToBasket.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),

@@ -14,7 +14,7 @@ from copy_trade.models import Basket
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
 
-from utilities import calculate_profit_of_signals, diff_between_two_dates, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
+from utilities import calculate_profit_of_signals, check_user_usdt_balance, diff_between_two_dates, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
 
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -718,3 +718,19 @@ class CheckUserAPIsKucoin(APIView):
             request.user.user_kucoin_api = user_kocoin_api
             request.user.save()
         return Response({'spot': spot_response.status_code, 'futures': futures_response.status_code})
+
+
+class joinToBasket(APIView):
+    def get(self, request, basket_id):
+        user_active_basket_joined = Basket.objects.filter(participants__in=[request.user.id], is_active=True).count()
+        print(user_active_basket_joined)
+        if user_active_basket_joined == 0:
+            selected_basket = Basket.objects.filter(id=basket_id).first()
+            user_usdt_balance = check_user_usdt_balance(request.user)
+            if float(user_usdt_balance.get('balance')) >= float(selected_basket.initial_balance):
+                selected_basket.participants.add(request.user)
+                selected_basket.save()
+                return Response({'status': 'ok', 'message': 'شما عضو سبد شدید'}, status=status_code.HTTP_200_OK)
+            return Response({'status': 'error', 'message': 'موجودی شما کافی نیست'}, status=status_code.HTTP_400_BAD_REQUEST)
+        return Response({'status': 'error', 'message': 'شما هم اکنون سبد فعال دارید'}, status=status_code.HTTP_400_BAD_REQUEST)
+        

@@ -6,6 +6,10 @@ import json
 import threading
 import random
 import string
+import time
+import hmac
+import hashlib
+import base64
 from random import randint
 import ippanel
 import requests
@@ -151,3 +155,25 @@ def is_first_target_touched(signal, target):
 
 def get_prev_touched_target(signal):
     return signal.targets.filter(is_touched=True).last()
+
+
+def check_user_usdt_balance(user):
+    user_kucoin_api = user.user_kucoin_api
+    api_key = user_kucoin_api.spot_api_key
+    api_secret = user_kucoin_api.spot_secret
+    api_passphrase = user_kucoin_api.spot_passphrase
+    url = 'https://api.kucoin.com/api/v1/accounts'
+    now = int(time.time() * 1000)
+    str_to_sign = str(now) + 'GET' + '/api/v1/accounts'
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2"
+    }
+    response = requests.request('get', url, headers=headers)
+    return list(filter(lambda x: x['currency'] == 'USDT' and x['type']=='trade', response.json()['data']))[0]
