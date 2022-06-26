@@ -10,11 +10,14 @@ from .views.spot_signal_view import SpotSignalsList, add_spot_alarm, delete_spot
 from .views.gift_view import UsersList as UserListGifts, deactive_user_gift, user_gifts_detail, active_user_gift, add_gift
 from .views.futures_signal_view import FuturesSignalsList, add_futures_alarm, add_futures_news, add_futures_signal, add_futures_target, close_futures_signal, delete_futures_alarm, delete_futures_signal, detail_futures
 from .views.transaction_view import DiscountCodesList, TransactionsList, add_discount_code, active_discount_code, confirm_transaction, deactive_discount_code, set_private_discount, set_public_discount, unconfirm_transaction
-from .views.user_views import UsersList, delete_user, add_user_message, home_page, remove_device_uuid, user_edit, deactivate_user, activate_user, set_user_permission
+from .views.user_views import UsersList, UsersFullAuthList, unconfirm_full_auth, confirm_full_auth, delete_user, add_user_message, home_page, remove_device_uuid, user_edit, deactivate_user, activate_user, set_user_permission
 
 urlpatterns = [
     path('', login_required(home_page), name='home'),
     path('users/', login_required(UsersList.as_view()), name='users_list'),
+    path('users-full-auth/', login_required(UsersFullAuthList.as_view()), name='users_has_requested_full_auth_list'),
+    path('unconfirm-full-auth/<user_id>', login_required(unconfirm_full_auth), name='unconfirm_full_auth'),
+    path('confirm-full-auth/<user_id>', login_required(confirm_full_auth), name='confirm_full_auth'),
     path('transactions/', login_required(TransactionsList.as_view()), name='transactions_list'),
     path("discount-codes/", DiscountCodesList.as_view(), name="discount_codes_list"),
     path("set-public-discount/<discount_code_id>/", set_public_discount, name="set_public_discount"),

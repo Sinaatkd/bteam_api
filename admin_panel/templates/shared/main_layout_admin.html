@@ -167,6 +167,35 @@
                 </ul>
               </li>
               {% endif %}
+              {% if request.user|has_group:'دسترسی به کپی ترید' %}
+              <li class="nav-item has-treeview">
+                <a href="#" class="nav-link active">
+                  <i class="nav-icon fa fa-bar-chart"></i>
+                  <p>
+                    کپی ترید
+                    <i class="right fa fa-angle-left"></i>
+                  </p>
+                </a>
+                <ul class="nav nav-treeview" style="display: none;">
+                  <li class="nav-item">
+                    <a  class="nav-link">
+                      <i class="nav-icon fa fa-area-chart"></i>
+                      <p>
+                       کپی ترید
+                      </p>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{% url 'users_has_requested_full_auth_list' %}" class="nav-link">
+                      <i class="nav-icon fa fa-area-chart"></i>
+                      <p>
+                        احراز هویت
+                      </p>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+              {% endif %}
               {% if request.user|has_group:'مالی' %}
               <li class="nav-item has-treeview">
                 <a href="#" class="nav-link active">

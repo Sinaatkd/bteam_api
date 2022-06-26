@@ -92,10 +92,38 @@
                                         {% endif %}
                                     </a>
                                 </li>
+                                {% if selected_user.father_name is not None %}
+                                <li class="list-group-item">
+                                    <b>نام پدر</b>
+                                    <a class="float-left">{{ selected_user.father_name }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>تاریخ تولد</b>
+                                    <a class="float-left">{{ selected_user.date_of_birth | date }}</a>
+                                </li>
+                                
+                                <li class="list-group-item">
+                                    <b>محل صدور شناسنامه</b>
+                                    <a class="float-left">{{ selected_user.place_of_issue }}</a>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <b>عکس شناسنامه</b>
+                                    <a class="float-left" href="{{selected_user.id_card.url}}">مشاهده</a>
+                                </li>
+
+                                
+                                <li class="list-group-item">
+                                    <b>عکس با شناسنامه  </b>
+                                    <a class="float-left" href="{{selected_user.face.url}}">مشاهده</a>
+                                </li>
+
+                                {% endif %}
                                 <li class="list-group-item">
                                     <form action="{% url 'delete_user' selected_user.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="float-right btn btn-outline-danger mt-2 ml-2">حذف کردن کاربر</button>
+                                        {% csrf_token %}
+                                        <button type="submit" class="float-right btn btn-outline-danger mt-2 ml-2">حذف
+                                            کردن کاربر</button>
                                     </form>
                                     {% if selected_user.is_active %}
                                     <form action="{% url 'deactivate_user' selected_user.id %}" method="POST">
@@ -103,9 +131,6 @@
                                         <button type="submit" class="float-right btn btn-danger text-white mt-2">بن کردن</a>
                                     </form>
                                     {% else %}
-                                    <!-- <p>
-                                        علت ریپورت: {{ selected_user.report_message }}
-                                    </p> -->
                                     <a href="{% url 'activate_user' selected_user.id %}"
                                         class="float-right btn btn-success text-white mt-2">فعال کردن</a>
                                     {% endif %}
@@ -206,7 +231,7 @@
                                         {% endif %}
                                     </a>
                                 </li>
-                                
+
                                 {% if not user_transaction.is_confirmation and user_transaction.transaction_status == 'در حال بررسی' %}
                                 <li class="list-group-item">
                                     <a href="{% url 'confirm_transaction' user_transaction.id %}"
@@ -214,15 +239,15 @@
                                 </li>
                                 <li class="list-group-item">
                                     <form method="post" action="{% url 'unconfirm_transaction' user_transaction.id %}">
-                                {% csrf_token %}
-                                <input required placeholder="علت رد شدن" name="reject_text" type="text"
+                                        {% csrf_token %}
+                                        <input required placeholder="علت رد شدن" name="reject_text" type="text"
                                             class="form-control" class="form-control">
                                         <br>
                                         <button type="submit" class="btn btn-danger">رد کردن</button>
                                     </form>
                                 </li>
                                 {% endif %}
-                                    
+
                                 {% else %}
                                 <p>اشتراکی وجود ندارد</p>
                                 {% endif %}
@@ -231,6 +256,60 @@
                         <!-- /.card-body -->
                     </div>
                 </div>
+                {% if selected_user.father_name is not None %}
+                <div class="col-md-12">
+                    <!-- Profile Image -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+
+                            <h3 class="profile-username text-center">احراز هویت</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>نام پدر</b>
+                                    <a class="float-left">{{ selected_user.father_name }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>تاریخ تولد</b>
+                                    <a class="float-left">{{ selected_user.date_of_birth | date:'Y-m-d' }}</a>
+                                </li>
+                                
+                                <li class="list-group-item">
+                                    <b>محل صدور شناسنامه</b>
+                                    <a class="float-left">{{ selected_user.place_of_issue }}</a>
+                                </li>
+
+                                <li class="list-group-item">
+                                    <b>عکس شناسنامه</b>
+                                    <a class="float-left" href="{{selected_user.id_card.url}}">مشاهده</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>عکس با شناسنامه  </b>
+                                    <a class="float-left" href="{{selected_user.face.url}}">مشاهده</a>
+                                </li>
+
+                                {% if not selected_user.is_full_authentication %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'confirm_full_auth' selected_user.id %}"
+                                        class="btn btn-success">تایید</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <form method="post" action="{% url 'unconfirm_full_auth' selected_user.id %}">
+                                        {% csrf_token %}
+                                        <input required placeholder="علت رد شدن" name="reject_text" type="text"
+                                            class="form-control" class="form-control">
+                                        <br>
+                                        <button type="submit" class="btn btn-danger">رد کردن</button>
+                                    </form>
+                                </li>
+                                {% else %}
+                                <p class="text-success text-center mt-5">تایید شده</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                {% endif %}
                 <div class="col-md-12">
                     <div class="card card-primary">
                         <div class="card-header">
@@ -294,7 +373,8 @@
                                         {% for group in groups %}
                                         <div class="col-4">
                                             <label for="{{ group.name }}">{{ group.name }}</label>
-                                            <input type="checkbox" {% if selected_user|has_group:group.name %} checked {% endif %} name="{{ group.name }}" id="{{ group.name }}">
+                                            <input type="checkbox" {% if selected_user|has_group:group.name %} checked
+                                                {% endif %} name="{{ group.name }}" id="{{ group.name }}">
                                         </div>
                                         {% endfor %}
                                         <div class="col-6">
@@ -344,7 +424,7 @@
                     <!-- /.card -->
                 </div>
 
-                
+
                 <div class="col-md-12">
                     <div class="card card-primary">
                         <div class="card-header">
@@ -354,8 +434,10 @@
                         <div class="card-body">
                             <form action="{% url 'add_user_message' %}" method="post">
                                 {% csrf_token %}
-                                <input type="text" name="title" placeholder="متن پیام جدید" class="col-6 form-control mb-2">
-                                <input type="hidden" name="user_id" value="{{ selected_user.id }}" class="col-6 form-control">
+                                <input type="text" name="title" placeholder="متن پیام جدید"
+                                    class="col-6 form-control mb-2">
+                                <input type="hidden" name="user_id" value="{{ selected_user.id }}"
+                                    class="col-6 form-control">
                                 <textarea name="description" class="form-control mb-2" cols="30" rows="10"></textarea>
                                 <button type="submit" class="btn btn-primary text-white">افزودن پیام</button>
                             </form>

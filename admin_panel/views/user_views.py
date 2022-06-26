@@ -117,6 +117,30 @@ def deactivate_user(request, user_id):
 
 
 @check_group('دسترسی به کاربران')
+def unconfirm_full_auth(request, user_id):
+    reject = request.POST.get('reject_text')
+    user = User.objects.get(id=user_id)
+    user.father_name = None
+    user.father_name = None
+    user.place_of_issue = None
+    user.date_of_birth = None
+    user.id_card = None
+    user.face = None
+    user.save()
+    send_sms('8hvg5dw0mz1651p', user.phone_number, {'reject': reject})
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+
+@check_group('دسترسی به کاربران')
+def confirm_full_auth(request, user_id):
+    user = User.objects.get(id=user_id)
+    user.is_full_authentication = True
+    user.save()
+    send_sms('iqne6lhel7u25k2', user.phone_number ,{'firstname': user.full_name.split()[0] })
+    return redirect(request.META.get('HTTP_REFERER'))
+
+@check_group('دسترسی به کاربران')
 def activate_user(request, user_id):
     user = User.objects.get(id=user_id)
     user.is_active = True
@@ -151,4 +175,16 @@ class UsersList(ListView):
         s = self.request.GET.get('s')
         if s is not None:
             queryset = User.objects.filter(full_name__icontains=s).order_by('-id')
+        return queryset
+
+
+class UsersFullAuthList(ListView):
+    template_name = 'users/users_list.html'
+    paginate_by = 20
+
+    def get_queryset(self):
+        queryset = User.objects.filter(father_name__isnull=False).order_by('-id')
+        s = self.request.GET.get('s')
+        if s is not None:
+            queryset = User.objects.filter(father_name__isnull=False, full_name__icontains=s).order_by('-id')
         return queryset
