@@ -116,7 +116,7 @@ class UserGiftLog(BaseModel):
 class UserCashWithdrawal(BaseModel):
     is_confirmation = models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False, blank=False)
-    bank_card_number = models.PositiveBigIntegerField()
+    bank_card_number = models.CharField(max_length=300)
     amount = models.PositiveIntegerField()
     paycode = models.BigIntegerField(null=True, blank=True)
 

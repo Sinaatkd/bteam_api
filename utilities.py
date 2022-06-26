@@ -65,7 +65,7 @@ def send_to_users_iphones_or_web_platform(title, content):
                 pass
 
 
-def send_notification(title, content, is_send_sms=True):
+def send_notification(title, content, is_send_sms=False):
     TOKEN = '0516638bac652996d133bc0f9208882694a6e8e5'
     APP_ID = '5ej1mqy1nkorv2ye'
 
