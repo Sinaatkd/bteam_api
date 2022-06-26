@@ -92,33 +92,6 @@
                                         {% endif %}
                                     </a>
                                 </li>
-                                {% if selected_user.father_name is not None %}
-                                <li class="list-group-item">
-                                    <b>نام پدر</b>
-                                    <a class="float-left">{{ selected_user.father_name }}</a>
-                                </li>
-                                <li class="list-group-item">
-                                    <b>تاریخ تولد</b>
-                                    <a class="float-left">{{ selected_user.date_of_birth | date }}</a>
-                                </li>
-                                
-                                <li class="list-group-item">
-                                    <b>محل صدور شناسنامه</b>
-                                    <a class="float-left">{{ selected_user.place_of_issue }}</a>
-                                </li>
-
-                                <li class="list-group-item">
-                                    <b>عکس شناسنامه</b>
-                                    <a class="float-left" href="{{selected_user.id_card.url}}">مشاهده</a>
-                                </li>
-
-                                
-                                <li class="list-group-item">
-                                    <b>عکس با شناسنامه  </b>
-                                    <a class="float-left" href="{{selected_user.face.url}}">مشاهده</a>
-                                </li>
-
-                                {% endif %}
                                 <li class="list-group-item">
                                     <form action="{% url 'delete_user' selected_user.id %}">
                                         {% csrf_token %}

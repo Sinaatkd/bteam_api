@@ -154,6 +154,7 @@ class EditUserAPI(UpdateAPIView):
                 face = ContentFile(
                     base64.b64decode(imgstr), name='temp.' + ext)
                 instance.face = face
+                send_sms('x3wk882rtdudm7u', request.user.phone_number, {'name': request.uesr.full_name})
             except:
                 pass
             del request.data['face']
@@ -757,3 +758,14 @@ class GetBasketStatus(APIView):
             'is_active': user_active_basket_joined.is_active
         }
         return Response(res)
+
+
+class CheckStagePayment(APIView):
+    authentication_classes = [ ]
+    permission_classes = [ ]
+    
+    def get(self, request, user_id):
+        print(request.data)
+        print(request.GET)
+        print(request)
+        return Response({'status': 'ok'})
