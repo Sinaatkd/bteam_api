@@ -6,15 +6,17 @@ from account.models import User
 class Stage(models.Model):
     title = models.CharField(max_length=100)
     amount = models.PositiveBigIntegerField()
+    is_pay_time = models.BooleanField(default=False)
+    pay_datetime = models.DateTimeField(null=True, blank=True)
+    payers = models.ManyToManyField(User, blank=True)
+
 
     def __str__(self) -> str:
         return f'{self.title} -- {self.amount}'
 
 
 class Basket(models.Model):
-    trader_name = models.CharField(max_length=300)
-    trader_api_features = models.CharField(max_length=1000)
-    trader_api_spot = models.CharField(max_length=1000)
+    trader = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     initial_balance = models.FloatField()
     win_rate = models.PositiveIntegerField()
     exchange = models.CharField(max_length=200, default='کوکوین')
@@ -31,7 +33,8 @@ class Basket(models.Model):
     orders_type = models.CharField(max_length=10, choices=(('f', 'futures'), ('s', 'spot')), null=True, blank=True)
     is_accept_participant = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
+    orders_count = models.PositiveIntegerField(null=True, blank=True)
 
 
     def __str__(self) -> str:
-        return f'{self.trader_name} - {self.win_rate}'
+        return f'{self.trader} - {self.win_rate}'

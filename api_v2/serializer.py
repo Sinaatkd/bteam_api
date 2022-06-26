@@ -262,6 +262,7 @@ class StageSerializer(serializers.ModelSerializer):
 
 class BasketSerializer(serializers.ModelSerializer):
     stages = StageSerializer(many=True)
+    trader = serializers.StringRelatedField()
     class Meta:
         model = Basket
         fields = '__all__'

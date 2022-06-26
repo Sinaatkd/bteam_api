@@ -63,7 +63,7 @@ class User(AbstractUser):
     user_kucoin_api = models.OneToOneField(UserKucoinAPI, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
-        return self.username
+        return self.full_name or self.username
 
 
 class VerificationCode(models.Model):

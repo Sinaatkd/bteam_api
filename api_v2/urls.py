@@ -2,7 +2,7 @@ from django.urls import path
 from api_v1.views import CheckUserSpecialAccount, CheckUserTransactionStatus
 
 from api_v2.views import CancelTransactionAPI, CheckUserAPIsKucoin, CreateTransactionAPI, CheckDiscountCodeAPI, CreateUserCashWithdrawalAPI, DeactiveFuturesSignal, DeactiveSpotSignal, \
-    EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetGiftsInfo, \
+    EditUserAPI, ForgotPassAPI, GetAllActiveFuturesSignals, GetAllActiveFuturesSignals, GetAllDeactiveSignals, GetAllPublicDiscountAPI, GetAllActiveSpotSignals, GetBasketStatus, GetGiftsInfo, \
     GetSpecialAccountItemListAPI, GetUserGiftLogsAPI, GetUserInfoAPI, GetUserMessages, \
     LoginUserWithUserPassAPI, LoginUserWithVerificationCodeAPI, OrderBaskets, RegisterUserAPI, SeenAllSignalNews, SeenAllUserMessage, SendReceiptImageAPI, \
     SendVerificationCodeAPI, SetTouchFuturesEntry, SetTouchSpotEntry, SetTouchTarget, UseGiftAPI, getSignalGeneralStats, GetThreeLastBanners, joinToBasket
@@ -43,6 +43,7 @@ urlpatterns = [
     path('copy-trade/baskets/', OrderBaskets.as_view()),
     path('copy-trade/check-user-apis/', CheckUserAPIsKucoin.as_view()),
     path('copy-trade/join/<basket_id>/', joinToBasket.as_view()),
+    path('copy-trade/basket-status/', GetBasketStatus.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),

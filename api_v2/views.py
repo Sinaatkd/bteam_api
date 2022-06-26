@@ -1,3 +1,4 @@
+from locale import currency
 import time
 import hashlib
 import base64
@@ -14,21 +15,14 @@ from copy_trade.models import Basket
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
 
-from utilities import calculate_profit_of_signals, check_user_usdt_balance, diff_between_two_dates, generate_token, get_now_jalali_date, get_prev_touched_target, get_random_string, is_first_target_touched, send_notification, send_sms, send_verification_code
-
+from utilities import *
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .permissions import IsAccountOwner, IsTransactionOwner
-from .serializer import (BannerSerializer, BasketSerializer, CheckDiscountCodeSerializer, DiscountCodeSerializer, FuturesSignalSerializer,
-                         SpecialAccountItemSerializer, SpotSignalSerializer,
-                         TransactionSerializer, UserCashWithdrawalSerializer, UserGiftLogSerializer,
-                         UserLoginVerificationCodeSerializer,
-                         UserLoginWithPasswordSerializer, UserMessageSerializer,
-                         UserRegisterSerializer,
-                         UserSerializer)
+from .serializer import *
 from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserKucoinAPI, UserMessage, VerificationCode
 from special_account_item.models import SpecialAccountItem
 from transaction.models import DiscountCode, Transaction
@@ -723,7 +717,6 @@ class CheckUserAPIsKucoin(APIView):
 class joinToBasket(APIView):
     def get(self, request, basket_id):
         user_active_basket_joined = Basket.objects.filter(participants__in=[request.user.id], is_active=True).count()
-        print(user_active_basket_joined)
         if user_active_basket_joined == 0:
             selected_basket = Basket.objects.filter(id=basket_id).first()
             user_usdt_balance = check_user_usdt_balance(request.user)
@@ -734,3 +727,33 @@ class joinToBasket(APIView):
             return Response({'status': 'error', 'message': 'موجودی شما کافی نیست'}, status=status_code.HTTP_400_BAD_REQUEST)
         return Response({'status': 'error', 'message': 'شما هم اکنون سبد فعال دارید'}, status=status_code.HTTP_400_BAD_REQUEST)
         
+
+
+class GetBasketStatus(APIView):
+    def get(self, request):
+        user_active_basket_joined = Basket.objects.filter(participants__in=[request.user.id], is_active=True).first()
+        user_currencies = get_balance(request.user.user_kucoin_api.spot_api_key, request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+        currencies = get_all_currencies_prices(request.user.user_kucoin_api.spot_api_key, request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+        total_balance = 0
+        for user_currency in user_currencies:
+            coin_value = currencies.get('data').get(user_currency.get('currency'))
+            total_balance += float(user_currency.get('balance')) * float(coin_value)
+
+        trader = user_active_basket_joined.trader
+        trader_currencies = get_balance(trader.user_kucoin_api.spot_api_key, trader.user_kucoin_api.spot_secret, trader.user_kucoin_api.spot_passphrase)
+        trader_total_balance = 0
+        for trader_currency in trader_currencies:
+            coin_value = currencies.get('data').get(trader_currency.get('currency'))
+            trader_total_balance += float(trader_currency.get('balance')) * float(coin_value)
+
+        loss, profit = copy_trade_calculate_loss_and_profit(trader_total_balance, user_active_basket_joined.initial_balance)
+
+        res = {
+            'orders_count': user_active_basket_joined.orders_count,
+            'balance': total_balance,
+            'stages': StageSerializer(user_active_basket_joined.stages.all(), many=True).data,
+            'loss': loss,
+            'profit': profit,
+            'is_active': user_active_basket_joined.is_active
+        }
+        return Response(res)
