@@ -41,6 +41,7 @@ urlpatterns = [
     path('copy-trade/join/<basket_id>/', joinToBasket.as_view()),
     path('copy-trade/basket-status/', GetBasketStatus.as_view()),
     path('copy-trade/stage/check-payment/<user_id>', CheckStagePayment.as_view()),
+    path('copy-trade/disconnect-apis/', DisConnectUserKucoinAPIs.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),

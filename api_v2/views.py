@@ -154,7 +154,7 @@ class EditUserAPI(UpdateAPIView):
                 face = ContentFile(
                     base64.b64decode(imgstr), name='temp.' + ext)
                 instance.face = face
-                send_sms('x3wk882rtdudm7u', request.user.phone_number, {'name': request.uesr.full_name})
+                send_sms('x3wk882rtdudm7u', request.user.phone_number, {'name': request.user.full_name})
             except:
                 pass
             del request.data['face']
@@ -769,3 +769,9 @@ class CheckStagePayment(APIView):
         print(request.GET)
         print(request)
         return Response({'status': 'ok'})
+
+
+class DisConnectUserKucoinAPIs(APIView):
+    def delete(self, request):
+        request.user.user_kucoin_api.delete();
+        return Response({'status': 'ok', 'message': 'diconnected'})
