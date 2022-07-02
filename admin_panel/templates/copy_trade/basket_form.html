@@ -1,0 +1,22 @@
+{% extends 'shared/main_layout_admin.html' %}
+
+{% block content %}
+<div class="content-wrapper">
+  <form method="post">
+    {% csrf_token %}
+    <div class="container">
+        <div class="row mt-5">
+            {% for field in form %}
+            <div class="col-6 mt-2">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+            </div>
+            {% endfor %}
+            <div class="col-10 offset-1 mt-4">
+          <input type="submit" class="btn btn-primary btn-block" value="ذخیره" />
+            </div>
+        </div>
+    </div>
+  </form>
+</div>
+{% endblock content %}

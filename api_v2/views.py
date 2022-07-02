@@ -745,7 +745,7 @@ class GetBasketStatus(APIView):
             total_balance += float(user_currency.get('balance')) * float(coin_value)
 
         trader = user_active_basket_joined.trader
-        trader_currencies = get_balance(trader.user_kucoin_api.spot_api_key, trader.user_kucoin_api.spot_secret, trader.user_kucoin_api.spot_passphrase)
+        trader_currencies = get_balance(trader.trader_spot_api, trader.trader_spot_secret, trader.trader_spot_passphrase)
         trader_total_balance = 0
         for trader_currency in trader_currencies:
             coin_value = currencies.get('data').get(trader_currency.get('currency'))
