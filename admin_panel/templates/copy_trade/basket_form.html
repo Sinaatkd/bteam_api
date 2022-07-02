@@ -2,21 +2,51 @@
 
 {% block content %}
 <div class="content-wrapper">
-  <form method="post">
-    {% csrf_token %}
-    <div class="container">
-        <div class="row mt-5">
-            {% for field in form %}
-            <div class="col-6 mt-2">
-                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                {{ field }}
-            </div>
-            {% endfor %}
-            <div class="col-10 offset-1 mt-4">
-          <input type="submit" class="btn btn-primary btn-block" value="ذخیره" />
-            </div>
-        </div>
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">ایجاد سبد جدید</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
     </div>
-  </form>
+
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+                <div class="col-12 mt-2">
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="card-title">فرم</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0 pb-2">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="container">
+                                    <div class="row mt-5">
+                                        {% for field in form %}
+                                        <div class="col-6 mt-2">
+                                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                            {{ field }}
+                                        </div>
+                                        {% endfor %}
+                                        <div class="col-10 offset-1 mt-4">
+                                    <input type="submit" class="btn btn-primary btn-block" value="ذخیره" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row (main row) -->
+        </div><!-- /.container-fluid -->
+    </section>
 </div>
 {% endblock content %}
