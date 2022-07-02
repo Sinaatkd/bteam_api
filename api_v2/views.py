@@ -97,6 +97,10 @@ class GetSpecialAccountItemListAPI(ListAPIView):
 
 class GetUserInfoAPI(APIView):
     def get(self, request):
+        user_blocked_from_basket = Basket.objects.filter(blocked_users__in=[request.user])
+        if user_blocked_from_basket.count() > 0:
+            stage = user_blocked_from_basket.first().stages.filter(is_pay_time=True).last()
+            return Response({'status': 'access denied', 'stage_id': stage.id}, 403)
         serializer = UserSerializer(request.user, many=False)
         transaction = Transaction.objects.filter(user=request.user).first()
         unread_messages = UserMessage.objects.filter(
@@ -760,18 +764,53 @@ class GetBasketStatus(APIView):
         return Response(res)
 
 
-class CheckStagePayment(APIView):
-    authentication_classes = [ ]
-    permission_classes = [ ]
-    
-    def get(self, request, user_id):
-        print(request.data)
-        print(request.GET)
-        print(request)
-        return Response({'status': 'ok'})
+class CreateInvoice(APIView):    
+    def get(self, request, stage_id):
+        stage = Stage.objects.get(id=stage_id)
+        username = request.user.username
+        data = {
+            'price_amount': stage.amount,
+            'price_currency': 'usd',
+            'success_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/check-invoice/{stage_id}/{username}',
+            'cancel_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/check-invoice/{stage_id}/{username}',
+            'pay_currency': 'USDT',
+        }
+        headers = {
+            'x-api-key': '7DM7S59-8HNM2SA-PZH7BQ5-1G311HX',
+            'ContentType': 'application/json',
+        }
+        r = requests.post('https://api-sandbox.nowpayments.io/v1/invoice/', data, headers=headers)
+        return Response({'invoice_url': r.json()['invoice_url']})
+
+
+class SuccessInvoice(APIView):
+    authentication_classes = []
+    permission_classes = []
+    def get(self, request, username, stage_id):
+        user = User.objects.filter(username=username).first()
+        if user is not None:
+            stage = Stage.objects.get(id=stage_id)
+            stage.payers.add(user)
+            basket = Basket.objects.filter(stages__in=[stage]).first()
+            basket.blocked_users.remove(user)
+            return Response({'status': 'ok', 'message': 'پرداخت شما با موفقیت انجام شد. لطفا مجدد وارد اپ شوید'})
+        return Response({'status': 'not found', 'message': 'کاربر پیدا نشد'})
+
+
+class CancelInvoice(APIView):
+    def get(self, request):
+        return Response({'status': 'error', 'message': 'پرداخت شما کنسل شد'})
 
 
 class DisConnectUserKucoinAPIs(APIView):
     def delete(self, request):
         request.user.user_kucoin_api.delete();
         return Response({'status': 'ok', 'message': 'diconnected'})
+
+
+class LeftFromBasket(APIView):
+    def get(self, request):
+        basket = Basket.objects.filter(participants__in=[request.user]).first()
+        if basket is not None:
+            basket.participants.remove(request.user)
+        return Response({'status': 'ok'})

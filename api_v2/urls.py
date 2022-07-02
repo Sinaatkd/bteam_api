@@ -40,8 +40,10 @@ urlpatterns = [
     path('copy-trade/check-user-apis/', CheckUserAPIsKucoin.as_view()),
     path('copy-trade/join/<basket_id>/', joinToBasket.as_view()),
     path('copy-trade/basket-status/', GetBasketStatus.as_view()),
-    path('copy-trade/stage/check-payment/<user_id>', CheckStagePayment.as_view()),
+    path('copy-trade/stage/<stage_id>/create-invoice/', CreateInvoice.as_view()),
     path('copy-trade/disconnect-apis/', DisConnectUserKucoinAPIs.as_view()),
+    path('copy-trade/check-invoice/<stage_id>/<username>', SuccessInvoice.as_view()),
+    path('copy-trade/left-basket/', LeftFromBasket.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),
