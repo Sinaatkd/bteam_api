@@ -4,11 +4,11 @@ from account.models import User
 
 
 class Stage(models.Model):
-    title = models.CharField(max_length=100)
-    amount = models.PositiveBigIntegerField()
-    is_pay_time = models.BooleanField(default=False)
-    pay_datetime = models.DateTimeField(null=True, blank=True)
-    payers = models.ManyToManyField(User, blank=True)
+    title = models.CharField(max_length=100, verbose_name='عنوان')
+    amount = models.PositiveBigIntegerField(verbose_name='مبلغ')
+    is_pay_time = models.BooleanField(default=False, verbose_name='زمان پرداخت باشد')
+    pay_datetime = models.DateTimeField(null=True, blank=True, verbose_name='زمان پرداخت')
+    payers = models.ManyToManyField(User, blank=True, verbose_name='پرداخت کنندگان')
 
 
     def __str__(self) -> str:
@@ -38,7 +38,7 @@ class Basket(models.Model):
     orders_type = models.CharField(max_length=10, choices=(('f', 'futures'), ('s', 'spot')), null=True, blank=True, verbose_name='نوع سبد')
     is_accept_participant = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    orders_count = models.PositiveIntegerField(null=True, blank=True)
+    orders_count = models.PositiveIntegerField(default=0)
 
 
     def __str__(self) -> str:

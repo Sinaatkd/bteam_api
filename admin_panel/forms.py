@@ -1,6 +1,6 @@
 from django import forms
 
-from copy_trade.models import Basket
+from copy_trade.models import Basket, Stage
 
 class EditUserForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'نام کاربری'}))
@@ -21,3 +21,15 @@ class BasketForm(forms.ModelForm):
     class Meta:
         model = Basket
         exclude = ('trader','exchange','participants','blocked_users','is_freeze','is_accept_participant','is_active','orders_count', 'stages')
+
+
+class StageForm(forms.ModelForm):
+    class Meta:
+        model = Stage
+        exclude = ('payers', 'pay_datetime', 'is_pay_time')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control', 'placeholder': self.fields[field].label})
+    

@@ -167,7 +167,8 @@ def check_user_usdt_balance(user):
     str_to_sign = str(now) + 'GET' + '/api/v1/accounts'
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-    passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
     headers = {
         "KC-API-SIGN": signature,
         "KC-API-TIMESTAMP": str(now),
@@ -176,7 +177,7 @@ def check_user_usdt_balance(user):
         "KC-API-KEY-VERSION": "2"
     }
     response = requests.request('get', url, headers=headers)
-    return list(filter(lambda x: x['currency'] == 'USDT' and x['type']=='trade', response.json()['data']))[0]
+    return list(filter(lambda x: x['currency'] == 'USDT' and x['type'] == 'trade', response.json()['data']))[0]
 
 
 def get_balance(api_key, api_secret, api_passphrase):
@@ -185,7 +186,8 @@ def get_balance(api_key, api_secret, api_passphrase):
     str_to_sign = str(now) + 'GET' + '/api/v1/accounts'
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-    passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
     headers = {
         "KC-API-SIGN": signature,
         "KC-API-TIMESTAMP": str(now),
@@ -197,14 +199,14 @@ def get_balance(api_key, api_secret, api_passphrase):
     return response.json()['data']
 
 
-
 def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     url = f'https://api.kucoin.com/api/v1/prices'
     now = int(time.time() * 1000)
     str_to_sign = str(now) + 'GET' + f'/api/v1/prices'
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-    passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
     headers = {
         "KC-API-SIGN": signature,
         "KC-API-TIMESTAMP": str(now),
@@ -220,9 +222,109 @@ def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
     loss = 0
     profit = 0
     if (trader_balance > float(initial_balance)):
-        profit = (float(trader_balance) / float(initial_balance)) * 100
+        profit = ((float(initial_balance) - float(trader_balance)) /
+                  float(initial_balance)) * 100 * -1
     else:
-        loss = (float(trader_balance) / float(initial_balance)) * 100
+        loss = ((float(initial_balance) - float(trader_balance)) /
+                float(initial_balance)) * 100
 
     return ceil(loss), ceil(profit)
-    
+
+
+def get_active_orders(order_type, api_key, api_secret, api_passphrase):
+    if order_type == 's':
+        url = f'https://api.kucoin.com/api/v1/stop-order'
+        now = int(time.time() * 1000)
+        str_to_sign = str(now) + 'GET' + f'/api/v1/stop-order'
+        signature = base64.b64encode(
+            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode(
+            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        headers = {
+            "KC-API-SIGN": signature,
+            "KC-API-TIMESTAMP": str(now),
+            "KC-API-KEY": api_key,
+            "KC-API-PASSPHRASE": passphrase,
+            "KC-API-KEY-VERSION": "2",
+            'Content-Type': 'application/json'
+        }
+        response = requests.request('get', url, headers=headers)
+        return response.json()['data']['items']
+    elif order_type == 'f':
+        url = f'https://api-futures.kucoin.com/api/v1/stopOrders'
+        now = int(time.time() * 1000)
+        str_to_sign = str(now) + 'GET' + f'/api/v1/stopOrders'
+        signature = base64.b64encode(
+            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode(
+            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        headers = {
+            "KC-API-SIGN": signature,
+            "KC-API-TIMESTAMP": str(now),
+            "KC-API-KEY": api_key,
+            "KC-API-PASSPHRASE": passphrase,
+            "KC-API-KEY-VERSION": "2",
+            'Content-Type': 'application/json'
+        }
+        response = requests.request('get', url, headers=headers)
+        return response.json()['data']['items']
+
+def create_order(api_key, api_secret, api_passphrase, symbol, size, side, price, stop_price):
+    data = {
+        'clientOid': randint(0, 1000000) * 1000000,
+        "side": side,
+        "symbol": symbol,
+        'stopPrice': stop_price,
+        "price": price,
+        "size": size,
+    }
+    data_json = json.dumps(data)
+    url = 'https://api.kucoin.com/api/v1/stop-order'
+    now = int(time.time() * 1000)
+    str_to_sign = str(now) + 'POST' + '/api/v1/stop-order' + data_json
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('post', url, headers=headers, data=data_json)
+    return response.json()
+
+
+def create_futures_order(side, symbol, stop_price, size, price, stop_price_type, leverage, api_key, api_secret, api_passphrase):
+    data = {
+        'clientOid': randint(0, 1000000) * 1000000,
+        "side": side,
+        "symbol": symbol,
+        'stopPrice': stop_price,
+        'stopPriceType': stop_price_type,
+        "price": price,
+        "size": size,
+        'leverage': leverage,
+        'type': 'limit',
+    }
+    data_json = json.dumps(data)
+    url = 'https://api-futures.kucoin.com/api/v1/orders'
+    now = int(time.time() * 1000)
+    str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('post', url, headers=headers, data=data_json)
+    return response.json()

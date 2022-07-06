@@ -1,0 +1,197 @@
+{% extends "shared/main_layout_admin.html" %}
+{% load static %}
+{% load check_perm %}
+
+
+{% block content %}
+<div class="content-wrapper" style="min-height: 697px;">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>جزئیات سبد</h1>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-4">
+                    <!-- Profile Image -->
+                    <div class="card card-primary card-outline">
+                        <div class="card-body box-profile">
+
+                            <h3 class="profile-username text-center">مشخصات سبد</h3>
+                            <ul class="list-group list-group-unbordered mb-3">
+                                <li class="list-group-item">
+                                    <b>تریدر</b>
+                                    <a class="float-left">{{ object.trader }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>موجودی اولیه</b>
+                                    <a class="float-left">{{ object.initial_balance }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>win rate</b>
+                                    <a class="float-left">{{ object.win_rate }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>ریسک سبد</b>
+                                    <a class="float-left">{{ object.basket_risk }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>حداکثر ضرر</b>
+                                    <a class="float-left">{{ object.maximum_loss }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>حداکثر سود</b>
+                                    <a class="float-left">{{ object.maximum_profit }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>تعداد معاملات باز شده</b>
+                                    <a class="float-left">{{ object.orders_count }}</a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>نوع سبد</b>
+                                    <a class="float-left">
+                                        {% if object.orders_type == 's' %}
+                                            <span class="badge badge-info">اسپات</span>
+                                        {% else %}
+                                            <span class="badge badge-info">فیوچرز</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    <b>وضعیت فعال بودن</b>
+                                    <a class="float-left">
+                                        {% if not object.is_active %}
+                                        <span class="badge badge-warning">غیرفعال</span>
+                                        {% else %}
+                                        <span class="badge badge-success">فعال</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
+                                <li class="list-group-item">
+                                    {% if not object.is_freeze and object.is_active %}
+                                    <a href="{% url 'apply_order_for_participants' object.id  %}" class="btn btn-primary">اعمال معاملات برای همه</a>
+                                    {% endif %}
+                                    <a href="{% url 'delete_basket' object.id %}" class="btn btn-danger">حذف سبد</a>
+                                </li>
+                                {% if object.is_accept_participant %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'disabled_accept_participant' object.id %}" class="btn btn-warning">قطع پذیرش شرکت کننده</a>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <!-- Profile Image -->
+                    <div class="card card-warning card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">استیج جدید</h3>
+                            <form method="post">
+                                <div class="row mt-4">
+                                    {% csrf_token %}
+                                    {% for field in stage_form %}
+                                    <div class="col-4">
+                                        {% comment %}
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {% endcomment %}
+                                        {{ field }}
+                                    </div>
+                                    {% endfor %}
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-primary btn-block">اضافه کردن</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <div class="card card-warning card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">استیج ها</h3>
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>عنوان</th>
+                                        <th>مبلغ</th>
+                                        <th>به استیج رسیده / نرسیده</th>
+                                        <th>زمان استیج</th>
+                                        <th>دستورات</th>
+                                    </tr>
+                                    {% for stage in object.stages.all %}
+                                    <tr>
+                                        <td>{{ stage.id }}</td>
+                                        <td>{{ stage.title }}</td>
+                                        <td>{{ stage.amount }} $</td>
+                                        <td>{{ stage.is_pay_time }}</td>
+                                        <td>{{ stage.pay_datetime }}</td>
+                                        <td>
+                                            <button class="btn btn-outline-info">به استیچ رسیدیم</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="?page={{page_obj.previous_page_number}}"
+                                                    aria-controls="example2" data-dt-idx="0" tabindex="0"
+                                                    class="page-link">قبلی</a>
+                                            </li>
+                                            {% endif %}
+
+                                            {% for page_num in paginator.page_range %}
+
+                                            {% if page_obj.number == page_num and not page_obj.has_next and not page_obj.has_previous %}
+                                            <p>صفحه بعدی وجود ندارد</p>
+                                            {% else %}
+                                            {% if page_obj.number == page_num %}
+                                            <li class="paginate_button page-item active">
+                                                <a aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+
+                                            {% else %}
+                                            <li class="paginate_button page-item"><a href="?page={{page_num}}"
+                                                    aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <li class="paginate_button page-item next" id="example2_next"><a
+                                                    href="?page={{page_obj.next_page_number}}" aria-controls="example2"
+                                                    data-dt-idx="7" tabindex="0" class="page-link">بعدی</a></li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                </div>
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock %}

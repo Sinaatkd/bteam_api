@@ -1,4 +1,3 @@
-from locale import currency
 import time
 import hashlib
 import base64
@@ -97,7 +96,8 @@ class GetSpecialAccountItemListAPI(ListAPIView):
 
 class GetUserInfoAPI(APIView):
     def get(self, request):
-        user_blocked_from_basket = Basket.objects.filter(blocked_users__in=[request.user])
+        user_blocked_from_basket = Basket.objects.filter(
+            blocked_users__in=[request.user])
         if user_blocked_from_basket.count() > 0:
             stage = user_blocked_from_basket.first().stages.filter(is_pay_time=True).last()
             return Response({'status': 'access denied', 'stage_id': stage.id}, 403)
@@ -158,7 +158,8 @@ class EditUserAPI(UpdateAPIView):
                 face = ContentFile(
                     base64.b64decode(imgstr), name='temp.' + ext)
                 instance.face = face
-                send_sms('x3wk882rtdudm7u', request.user.phone_number, {'name': request.user.full_name})
+                send_sms('x3wk882rtdudm7u', request.user.phone_number,
+                         {'name': request.user.full_name})
             except:
                 pass
             del request.data['face']
@@ -247,22 +248,22 @@ class GetAllDeactiveSignals(APIView):
         range_date = today - timedelta(days=days)
         deactives_futures_signals = FuturesSignal.objects.filter(
             is_active=False, created_time__range=[range_date, today]).order_by('-id')
-            
+
         deactives_spot_signals = SpotSignal.objects.filter(
             is_active=False, created_time__range=[range_date, today]).order_by('-id')
-            
+
         closed_with_profit_count = deactives_futures_signals.filter(
             status='فول تارگت').count() + deactives_spot_signals.filter(status='فول تارگت').count()
-            
+
         closed_at_loss_count = deactives_futures_signals.filter(status='حد ضرر فعال شد').count(
         ) + deactives_spot_signals.filter(status='حد ضرر فعال شد').count()
-        
+
         voided_count = deactives_futures_signals.filter(status='باطل شد').count(
         ) + deactives_spot_signals.filter(status='باطل شد').count()
-        
+
         risk_free_count = deactives_futures_signals.filter(status__icontains='ریسک فری').count(
         ) + deactives_spot_signals.filter(status__icontains='ریسک فری').count()
-        
+
         spot_sum = SpotSignal.objects.filter(is_active=False).aggregate(
             Sum('profit_of_signal_amount')).get('profit_of_signal_amount__sum')
         if spot_sum is None:
@@ -355,7 +356,7 @@ class SetTouchTarget(ListAPIView):
         global title
         global content
         content = f'{selected_target.title} تاچ شد'
-        
+
         if kind == 'spot':
             signal = SpotSignal.objects.get(
                 id=request.query_params.get('signal_id'))
@@ -364,10 +365,10 @@ class SetTouchTarget(ListAPIView):
             signal = FuturesSignal.objects.get(
                 id=request.query_params.get('signal_id'))
             title = f'سیگنال {signal.coin_symbol}'
-            
 
         if is_first_target_touched(signal, selected_target):
-            signal.alarms.add(SignalAlarm.objects.create(title='ریسک فری! حدضرر را نقطه ورود تنطیم کنید'))
+            signal.alarms.add(SignalAlarm.objects.create(
+                title='ریسک فری! حدضرر را نقطه ورود تنطیم کنید'))
             signal.stop_loss = signal.entry
             signal.save()
             content += ' - رعایت ریسک فری'
@@ -600,7 +601,7 @@ class SeenAllSignalNews(APIView):
 
         return Response({'message': 'ok'})
 
-    
+
 class CheckUserTransactionStatus(APIView):
     def get(self, request):
         transactions = Transaction.objects.filter(
@@ -654,7 +655,6 @@ class OrderBaskets(ListAPIView):
     serializer_class = BasketSerializer
 
 
-
 class CheckUserAPIsKucoin(APIView):
     def post(self, request):
         futuresAPIKey = request.data.get('futuresAPIKey', 'None')
@@ -681,7 +681,8 @@ class CheckUserAPIsKucoin(APIView):
         str_to_sign = str(now) + 'GET' + '/api/v1/accounts'
         signature = base64.b64encode(
             hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-        passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode(
+            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
         headers = {
             "KC-API-SIGN": signature,
             "KC-API-TIMESTAMP": str(now),
@@ -699,7 +700,8 @@ class CheckUserAPIsKucoin(APIView):
         str_to_sign = str(now) + 'GET' + '/api/v1/position?symbol=USDTUSDM'
         signature = base64.b64encode(
             hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-        passphrase = base64.b64encode(hmac.new(api_secret.encode('utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+        passphrase = base64.b64encode(hmac.new(api_secret.encode(
+            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
         headers = {
             "KC-API-SIGN": signature,
             "KC-API-TIMESTAMP": str(now),
@@ -711,7 +713,7 @@ class CheckUserAPIsKucoin(APIView):
 
         if futures_response.status_code == 200 and spot_response.status_code == 200:
             user_kocoin_api = UserKucoinAPI.objects.create(futures_api_key=futuresAPIKey, futures_secret=futuresSecret, futures_passphrase=futuresPassphrase,
-             spot_api_key=spotAPIKey, spot_secret=spotSecret, spot_passphrase=spotPassphrase)
+                                                           spot_api_key=spotAPIKey, spot_secret=spotSecret, spot_passphrase=spotPassphrase)
             if request.user.user_kucoin_api is not None:
                 request.user.user_kucoin_api.delete()
             request.user.user_kucoin_api = user_kocoin_api
@@ -721,7 +723,8 @@ class CheckUserAPIsKucoin(APIView):
 
 class joinToBasket(APIView):
     def get(self, request, basket_id):
-        user_active_basket_joined = Basket.objects.filter(participants__in=[request.user.id], is_active=True).count()
+        user_active_basket_joined = Basket.objects.filter(
+            participants__in=[request.user.id], is_active=True).count()
         if user_active_basket_joined == 0:
             selected_basket = Basket.objects.filter(id=basket_id).first()
             user_usdt_balance = check_user_usdt_balance(request.user)
@@ -731,27 +734,34 @@ class joinToBasket(APIView):
                 return Response({'status': 'ok', 'message': 'شما عضو سبد شدید'}, status=status_code.HTTP_200_OK)
             return Response({'status': 'error', 'message': 'موجودی شما کافی نیست'}, status=status_code.HTTP_400_BAD_REQUEST)
         return Response({'status': 'error', 'message': 'شما هم اکنون سبد فعال دارید'}, status=status_code.HTTP_400_BAD_REQUEST)
-        
 
 
 class GetBasketStatus(APIView):
     def get(self, request):
-        user_active_basket_joined = Basket.objects.filter(participants__in=[request.user.id], is_active=True).first()
-        user_currencies = get_balance(request.user.user_kucoin_api.spot_api_key, request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
-        currencies = get_all_currencies_prices(request.user.user_kucoin_api.spot_api_key, request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+        user_active_basket_joined = Basket.objects.filter(
+            participants__in=[request.user.id], is_active=True).first()
+        user_currencies = get_balance(request.user.user_kucoin_api.spot_api_key,
+                                      request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+        currencies = get_all_currencies_prices(request.user.user_kucoin_api.spot_api_key,
+                                               request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
         total_balance = 0
         for user_currency in user_currencies:
-            coin_value = currencies.get('data').get(user_currency.get('currency'))
-            total_balance += float(user_currency.get('balance')) * float(coin_value)
+            coin_value = currencies.get('data').get(
+                user_currency.get('currency'))
+            total_balance += float(user_currency.get('balance')
+                                   ) * float(coin_value)
 
-        trader = user_active_basket_joined.trader
-        trader_currencies = get_balance(trader.trader_spot_api, trader.trader_spot_secret, trader.trader_spot_passphrase)
+        trader_currencies = get_balance(user_active_basket_joined.trader_spot_api,
+                                        user_active_basket_joined.trader_spot_secret, user_active_basket_joined.trader_spot_passphrase)
         trader_total_balance = 0
         for trader_currency in trader_currencies:
-            coin_value = currencies.get('data').get(trader_currency.get('currency'))
-            trader_total_balance += float(trader_currency.get('balance')) * float(coin_value)
+            coin_value = currencies.get('data').get(
+                trader_currency.get('currency'))
+            trader_total_balance += float(trader_currency.get('balance')
+                                          ) * float(coin_value)
 
-        loss, profit = copy_trade_calculate_loss_and_profit(trader_total_balance, user_active_basket_joined.initial_balance)
+        loss, profit = copy_trade_calculate_loss_and_profit(
+            trader_total_balance, user_active_basket_joined.initial_balance)
 
         res = {
             'orders_count': user_active_basket_joined.orders_count,
@@ -764,7 +774,7 @@ class GetBasketStatus(APIView):
         return Response(res)
 
 
-class CreateInvoice(APIView):    
+class CreateInvoice(APIView):
     def get(self, request, stage_id):
         stage = Stage.objects.get(id=stage_id)
         username = request.user.username
@@ -779,13 +789,15 @@ class CreateInvoice(APIView):
             'x-api-key': '7DM7S59-8HNM2SA-PZH7BQ5-1G311HX',
             'ContentType': 'application/json',
         }
-        r = requests.post('https://api-sandbox.nowpayments.io/v1/invoice/', data, headers=headers)
+        r = requests.post(
+            'https://api-sandbox.nowpayments.io/v1/invoice/', data, headers=headers)
         return Response({'invoice_url': r.json()['invoice_url']})
 
 
 class SuccessInvoice(APIView):
     authentication_classes = []
     permission_classes = []
+
     def get(self, request, username, stage_id):
         user = User.objects.filter(username=username).first()
         if user is not None:
@@ -804,7 +816,7 @@ class CancelInvoice(APIView):
 
 class DisConnectUserKucoinAPIs(APIView):
     def delete(self, request):
-        request.user.user_kucoin_api.delete();
+        request.user.user_kucoin_api.delete()
         return Response({'status': 'ok', 'message': 'diconnected'})
 
 

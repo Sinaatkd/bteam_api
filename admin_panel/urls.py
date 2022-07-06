@@ -81,6 +81,10 @@ urlpatterns = [
     
     path('baskets', BasketsList.as_view(), name='baskets'),
     path('baskets/new', CreateBasket.as_view(), name='create_basket'),
+    path('baskets/<int:pk>/detial', DetailBasket.as_view(), name='detail_basket'),
+    path('baskets/<int:pk>/delete', delete_basket, name='delete_basket'),
+    path('baskets/<int:pk>/disabled-accept-participant', disabled_accept_participant, name='disabled_accept_participant'),
+    path('baskets/<int:pk>/apply-orders-for-participants', apply_order_for_participants, name='apply_order_for_participants'),
     
     path('login', admin_login, name='admin_login'),
 
