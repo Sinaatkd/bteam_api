@@ -1,4 +1,5 @@
-from random import randint
+import threading
+from time import sleep
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -57,8 +58,11 @@ def disabled_accept_participant(request, pk):
     selected_basket.save()
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
-def apply_order_for_participants(request, pk):
-    basket = Basket.objects.get(pk=pk)
+
+def apply_order_for_participants_thread(basket):
+    print('start')
+    sleep(10)
+    print('end')
     if basket.orders_type == 's':
         trader_active_orders = get_active_orders('s', basket.trader_spot_api, basket.trader_spot_secret, basket.trader_spot_passphrase)
         for order in trader_active_orders:
@@ -88,6 +92,11 @@ def apply_order_for_participants(request, pk):
                 api_passphrase = participant.user_kucoin_api.futures_passphrase
                 create_futures_order(side, symbol, stop_price, size, price, stop_price_type, leverage, api_key, api_secret, api_passphrase)
 
+
+def apply_order_for_participants(request, pk):
+    basket = Basket.objects.get(pk=pk)
+    thread = threading.Thread(target=apply_order_for_participants_thread, kwargs={'basket': basket})
+    thread.start()
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
 
