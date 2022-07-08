@@ -1,5 +1,6 @@
 from random import randint
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from admin_panel.forms import BasketForm, StageForm
@@ -74,7 +75,6 @@ def apply_order_for_participants(request, pk):
     elif basket.orders_type == 'f':
         trader_active_orders = get_active_orders('f', basket.trader_futures_api, basket.trader_futures_secret, basket.trader_futures_passphrase)
         for order in trader_active_orders:
-            print(order)
             symbol = order['symbol']
             size = float(order['size'])
             side = order['side']
@@ -82,12 +82,21 @@ def apply_order_for_participants(request, pk):
             stop_price = float(order['stopPrice'])
             stop_price_type = order['stopPriceType']
             leverage = float(order['leverage'])
-            print(symbol, size, side, price, stop_price, leverage)
             for participant in basket.participants.all():
                 api_key = participant.user_kucoin_api.futures_api_key
                 api_secret = participant.user_kucoin_api.futures_secret
                 api_passphrase = participant.user_kucoin_api.futures_passphrase
-                new_order = create_futures_order(side, symbol, stop_price, size, price, stop_price_type, leverage, api_key, api_secret, api_passphrase)
-                print(new_order)
+                create_futures_order(side, symbol, stop_price, size, price, stop_price_type, leverage, api_key, api_secret, api_passphrase)
 
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
+
+
+def set_stage(request, pk):
+    stage = Stage.objects.get(pk=pk)
+    if not stage.is_pay_time:
+        stage.is_pay_time = True
+        stage.save()
+        basket = Basket.objects.filter(stages__in=[stage]).first()
+        basket.is_freeze = True
+        basket.save()
+    return redirect(request.META.get('HTTP_REFERER'))

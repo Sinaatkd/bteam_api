@@ -78,6 +78,8 @@
                                 <li class="list-group-item">
                                     {% if not object.is_freeze and object.is_active %}
                                     <a href="{% url 'apply_order_for_participants' object.id  %}" class="btn btn-primary">اعمال معاملات برای همه</a>
+                                    {% else %}
+                                    <button class="btn btn-primary disabled">سبد در حالت فریز</button>
                                     {% endif %}
                                     <a href="{% url 'delete_basket' object.id %}" class="btn btn-danger">حذف سبد</a>
                                 </li>
@@ -125,7 +127,6 @@
                                         <th>عنوان</th>
                                         <th>مبلغ</th>
                                         <th>به استیج رسیده / نرسیده</th>
-                                        <th>زمان استیج</th>
                                         <th>دستورات</th>
                                     </tr>
                                     {% for stage in object.stages.all %}
@@ -134,9 +135,8 @@
                                         <td>{{ stage.title }}</td>
                                         <td>{{ stage.amount }} $</td>
                                         <td>{{ stage.is_pay_time }}</td>
-                                        <td>{{ stage.pay_datetime }}</td>
                                         <td>
-                                            <button class="btn btn-outline-info">به استیچ رسیدیم</button>
+                                            <a class="btn btn-outline-info" href="{% url 'set_stage' stage.id  %}">به استیچ رسیدیم</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
