@@ -1,6 +1,5 @@
 import threading
-from time import sleep
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
@@ -12,10 +11,13 @@ from utilities import create_futures_order, create_order, get_active_orders
 class BasketsList(ListView):
     paginate_by = 10
 
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.groups.filter(name='دسترسی به کپی ترید').exists() or request.user.groups.filter(name='مدیر').exists():
+            return super().dispatch(request, *args, **kwargs)
+        raise Http404
+    
     def get_queryset(self):
-        if self.request.user.groups.filter(name='تریدر').exists() or self.request.user.groups.filter(name='مدیر').exists():
-            baskets = Basket.objects.filter(trader=self.request.user).order_by('-is_active', '-id')
-        return baskets
+        return Basket.objects.filter(trader=self.request.user).order_by('-is_active', '-id')
 
 
 class CreateBasket(CreateView):
@@ -60,9 +62,6 @@ def disabled_accept_participant(request, pk):
 
 
 def apply_order_for_participants_thread(basket):
-    print('start')
-    sleep(10)
-    print('end')
     if basket.orders_type == 's':
         trader_active_orders = get_active_orders('s', basket.trader_spot_api, basket.trader_spot_secret, basket.trader_spot_passphrase)
         for order in trader_active_orders:
