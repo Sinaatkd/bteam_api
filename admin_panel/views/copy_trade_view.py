@@ -1,3 +1,4 @@
+from calendar import c
 from random import randint
 import threading
 from datetime import datetime, timedelta
@@ -7,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
-from utilities import create_order, get_active_orders
+from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance
 
 
 class BasketsList(ListView):
@@ -72,7 +73,9 @@ def apply_order_for_participants_thread(basket):
         basket.orders_type, api_key, secret_key, passphrase)
     for order in trader_active_orders:
         order_created_time = order.get('createdAt')
-        five_minute_ago_timestamp =  (datetime.now() - timedelta(minutes=5)).timestamp()
+        five_minute_ago_timestamp = (
+            datetime.now() - timedelta(minutes=5)).timestamp()
+
 
         if order_created_time > five_minute_ago_timestamp:
             paylaod = {
@@ -97,14 +100,12 @@ def apply_order_for_participants_thread(basket):
             paylaod['stop'] = stop
             del paylaod['order_type']
 
-            
             for participant in basket.participants.all():
                 participant_api = participant.user_kucoin_api
                 api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
                 api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
                 api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
-                create_order(basket.orders_type, api_key, api_secret,
-                            api_passphrase, **paylaod)
+                create_stop_order(basket.orders_type, api_key, api_secret, api_passphrase, **paylaod)
 
 def apply_order_for_participants(request, pk):
     basket = Basket.objects.get(pk=pk)
@@ -114,12 +115,37 @@ def apply_order_for_participants(request, pk):
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
 
+def freeze_orders_thread(basket):
+    for participant in basket.participants.all():
+        participant_api = participant.user_kucoin_api
+        api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
+        api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
+        api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
+        cancel_all_orders(basket.orders_type, api_key, api_secret, api_passphrase)
+        if basket.orders_type == 's':
+            currencies = get_balance(api_key, api_secret, api_passphrase)
+            currencies = list(filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
+            for currency in currencies:
+                if float(currency.get('available')) > 0:
+                    available_balance = currency.get('available')
+                    paylaod = {
+                        'symbol': f'{currency.get("currency")}-USDT',
+                        'size': float(available_balance[:6]),
+                        'side': 'sell',
+                        'type': 'market',
+                }
+            create_order('s', api_key, api_secret, api_passphrase, **paylaod)
+        
+
 def set_stage(request, pk):
     stage = Stage.objects.get(pk=pk)
-    if not stage.is_pay_time:
+    if stage.is_pay_time:
         stage.is_pay_time = True
         stage.save()
         basket = Basket.objects.filter(stages__in=[stage]).first()
         basket.is_freeze = True
         basket.save()
+        thread = threading.Thread(
+            target=freeze_orders_thread, kwargs={'basket': basket})
+        thread.start()
     return redirect(request.META.get('HTTP_REFERER'))

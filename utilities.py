@@ -255,7 +255,7 @@ def get_active_orders(order_type, api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()['data']['items']
 
-def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
+def create_stop_order(order_type, api_key, api_secret, api_passphrase, **payload):
     payload['clientOid'] = randint(1, 10000) * 1000
     now = int(time.time() * 1000)
     data_json = json.dumps(payload)
@@ -279,4 +279,73 @@ def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
         'Content-Type': 'application/json'
     }
     response = requests.request('post', url, headers=headers, data=data_json)
+    return response.json()
+
+def get_futures_completed_orders(api_key, api_secret, api_passphrase):
+    now = int(time.time() * 1000)
+    url = 'https://api-futures.kucoin.com/api/v1/recentDoneOrders'
+    str_to_sign = str(now) + 'GET' + '/api/v1/recentDoneOrders'
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('get', url, headers=headers)
+    return response.json()['data']['items']
+
+def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
+    payload['clientOid'] = randint(1, 10000) * 1000
+    now = int(time.time() * 1000)
+    data_json = json.dumps(payload)
+    if order_type == 's':
+        url = 'https://api.kucoin.com/api/v1/orders'
+        str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
+    else:
+        url = 'https://api-futures.kucoin.com/api/v1/orders'
+        str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
+    
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('post', url, headers=headers, data=data_json)
+    return response.json()
+
+def cancel_all_orders(order_type, api_key, api_secret, api_passphrase):
+    now = int(time.time() * 1000)
+    if order_type == 's':
+        url = 'https://api.kucoin.com/api/v1/stop-order/cancel'
+        str_to_sign = str(now) + 'DELETE' + '/api/v1/stop-order/cancel'
+    else:
+        url = 'https://api-futures.kucoin.com/api/v1/orders'
+        str_to_sign = str(now) + 'DELETE' + '/api/v1/orders'
+    
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('delete', url, headers=headers)
     return response.json()
