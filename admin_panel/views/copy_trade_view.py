@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
-from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance
+from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, get_futures_completed_orders
 
 
 class BasketsList(ListView):
@@ -135,11 +135,10 @@ def freeze_orders_thread(basket):
                         'type': 'market',
                 }
             create_order('s', api_key, api_secret, api_passphrase, **paylaod)
-        
 
 def set_stage(request, pk):
     stage = Stage.objects.get(pk=pk)
-    if stage.is_pay_time:
+    if not stage.is_pay_time:
         stage.is_pay_time = True
         stage.save()
         basket = Basket.objects.filter(stages__in=[stage]).first()

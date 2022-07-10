@@ -14,10 +14,9 @@ from random import randint
 import ippanel
 import requests
 
-from django.db.models import Sum
 from rest_framework.authtoken.models import Token
 from account.models import VerificationCode, User
-from signals.models import FuturesSignal, SpotSignal, Target
+from signals.models import FuturesSignal, SpotSignal
 from transaction.models import Transaction
 
 
@@ -217,7 +216,6 @@ def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()
 
-
 def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
     loss = 0
     profit = 0
@@ -229,7 +227,6 @@ def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
                 float(initial_balance)) * 100
 
     return ceil(loss), ceil(profit)
-
 
 def get_active_orders(order_type, api_key, api_secret, api_passphrase):
     now = int(time.time() * 1000)
@@ -298,7 +295,7 @@ def get_futures_completed_orders(api_key, api_secret, api_passphrase):
         'Content-Type': 'application/json'
     }
     response = requests.request('get', url, headers=headers)
-    return response.json()['data']['items']
+    return response.json()['data']
 
 def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
     payload['clientOid'] = randint(1, 10000) * 1000
