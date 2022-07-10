@@ -15,6 +15,19 @@ class Stage(models.Model):
         return f'{self.title} -- {self.amount}'
 
 
+class Order(models.Model):
+    symbol = models.CharField(max_length=100, null=True, blank=True)
+    size = models.CharField(max_length=100, null=True, blank=True)
+    side = models.CharField(max_length=100, null=True, blank=True)
+    price = models.CharField(max_length=100, null=True, blank=True)
+    stopPrice = models.CharField(max_length=100, null=True, blank=True)
+    stopPriceType = models.CharField(max_length=100, null=True, blank=True)
+    leverage = models.CharField(max_length=100, null=True, blank=True)
+    order_type = models.CharField(max_length=100, null=True, blank=True)
+    
+    def __str__(self) -> str:
+        return self.symbol
+    
 class Basket(models.Model):
     trader = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name='تریدر')
     trader_spot_api = models.CharField(max_length=1000, null=True, blank=True, verbose_name='spot api key تریدر')
@@ -38,7 +51,7 @@ class Basket(models.Model):
     orders_type = models.CharField(max_length=10, choices=(('f', 'futures'), ('s', 'spot')), null=True, blank=True, verbose_name='نوع سبد')
     is_accept_participant = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    orders_count = models.PositiveIntegerField(default=0)
+    orders = models.ManyToManyField(Order, blank=True)
 
 
     def __str__(self) -> str:

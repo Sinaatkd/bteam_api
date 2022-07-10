@@ -232,56 +232,14 @@ def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
 
 
 def get_active_orders(order_type, api_key, api_secret, api_passphrase):
+    now = int(time.time() * 1000)
     if order_type == 's':
         url = f'https://api.kucoin.com/api/v1/stop-order'
-        now = int(time.time() * 1000)
         str_to_sign = str(now) + 'GET' + f'/api/v1/stop-order'
-        signature = base64.b64encode(
-            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-        passphrase = base64.b64encode(hmac.new(api_secret.encode(
-            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
-        headers = {
-            "KC-API-SIGN": signature,
-            "KC-API-TIMESTAMP": str(now),
-            "KC-API-KEY": api_key,
-            "KC-API-PASSPHRASE": passphrase,
-            "KC-API-KEY-VERSION": "2",
-            'Content-Type': 'application/json'
-        }
-        response = requests.request('get', url, headers=headers)
-        return response.json()['data']['items']
     elif order_type == 'f':
         url = f'https://api-futures.kucoin.com/api/v1/stopOrders'
-        now = int(time.time() * 1000)
         str_to_sign = str(now) + 'GET' + f'/api/v1/stopOrders'
-        signature = base64.b64encode(
-            hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
-        passphrase = base64.b64encode(hmac.new(api_secret.encode(
-            'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
-        headers = {
-            "KC-API-SIGN": signature,
-            "KC-API-TIMESTAMP": str(now),
-            "KC-API-KEY": api_key,
-            "KC-API-PASSPHRASE": passphrase,
-            "KC-API-KEY-VERSION": "2",
-            'Content-Type': 'application/json'
-        }
-        response = requests.request('get', url, headers=headers)
-        return response.json()['data']['items']
-
-def create_order(api_key, api_secret, api_passphrase, symbol, size, side, price, stop_price):
-    data = {
-        'clientOid': randint(0, 1000000) * 1000000,
-        "side": side,
-        "symbol": symbol,
-        'stopPrice': stop_price,
-        "price": price,
-        "size": size,
-    }
-    data_json = json.dumps(data)
-    url = 'https://api.kucoin.com/api/v1/stop-order'
-    now = int(time.time() * 1000)
-    str_to_sign = str(now) + 'POST' + '/api/v1/stop-order' + data_json
+        
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
@@ -294,26 +252,20 @@ def create_order(api_key, api_secret, api_passphrase, symbol, size, side, price,
         "KC-API-KEY-VERSION": "2",
         'Content-Type': 'application/json'
     }
-    response = requests.request('post', url, headers=headers, data=data_json)
-    return response.json()
+    response = requests.request('get', url, headers=headers)
+    return response.json()['data']['items']
 
-
-def create_futures_order(side, symbol, stop_price, size, price, stop_price_type, leverage, api_key, api_secret, api_passphrase):
-    data = {
-        'clientOid': randint(0, 1000000) * 1000000,
-        "side": side,
-        "symbol": symbol,
-        'stopPrice': stop_price,
-        'stopPriceType': stop_price_type,
-        "price": price,
-        "size": size,
-        'leverage': leverage,
-        'type': 'limit',
-    }
-    data_json = json.dumps(data)
-    url = 'https://api-futures.kucoin.com/api/v1/orders'
+def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
+    payload['clientOid'] = randint(1, 10000) * 1000
     now = int(time.time() * 1000)
-    str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
+    data_json = json.dumps(payload)
+    if order_type == 's':
+        url = 'https://api.kucoin.com/api/v1/stop-order'
+        str_to_sign = str(now) + 'POST' + '/api/v1/stop-order' + data_json
+    else:
+        url = 'https://api-futures.kucoin.com/api/v1/orders'
+        str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
+    
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
