@@ -72,12 +72,12 @@ def apply_order_for_participants_thread(basket):
     trader_active_orders = get_active_orders(
         basket.orders_type, api_key, secret_key, passphrase)
     for order in trader_active_orders:
-        order_created_time = order.get('createdAt')
+        order_created_time = str(order.get('createdAt'))[:-3]
         five_minute_ago_timestamp = (
             datetime.now() - timedelta(minutes=5)).timestamp()
 
 
-        if order_created_time > five_minute_ago_timestamp:
+        if float(order_created_time) > five_minute_ago_timestamp:
             paylaod = {
                 'symbol': order.get('symbol', None),
                 'size': float(order.get('size', None)) if order.get('size', None) != None else order.get('size', None),
