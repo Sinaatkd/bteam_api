@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
-from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, get_futures_completed_orders
+from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, get_futures_completed_orders, send_sms
 
 
 class BasketsList(ListView):
@@ -123,8 +123,14 @@ def apply_order_for_participants(request, pk):
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
 
-def freeze_orders_thread(basket):
+def freeze_orders_thread(basket, stage):
     for participant in basket.participants.all():
+        sms_vars = {
+            'firstname': participant.fullname.slpit()[0],
+            'bedehi': stage.amount,
+            'shenase': stage.id
+        }
+        send_sms('9qezu3javzezsef', participant.phone_number, sms_vars)
         participant_api = participant.user_kucoin_api
         api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
         api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
@@ -153,6 +159,6 @@ def set_stage(request, pk):
         basket.is_freeze = True
         basket.save()
         thread = threading.Thread(
-            target=freeze_orders_thread, kwargs={'basket': basket})
+            target=freeze_orders_thread, kwargs={'basket': basket, 'stage': stage})
         thread.start()
     return redirect(request.META.get('HTTP_REFERER'))
