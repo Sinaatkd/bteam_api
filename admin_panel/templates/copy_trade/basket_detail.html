@@ -1,6 +1,7 @@
 {% extends "shared/main_layout_admin.html" %}
 {% load static %}
 {% load check_perm %}
+{% load check_payment %}
 
 
 {% block content %}
@@ -187,6 +188,160 @@
                         </div>
                         <!-- /.card-body -->
                     </div>
+
+                    <div class="card card-warning card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">Orders</h3>
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>symbol</th>
+                                        <th>size</th>
+                                        <th>side</th>
+                                        <th>price</th>
+                                        <th>order type</th>
+                                        <th>stop price</th>
+                                        {% if object.orders_type == 'f' %}
+                                        <th>stop price type</th>
+                                        <th>leverage</th>
+                                        {% endif %}
+                                    </tr>
+                                    {% for order in object.orders.all %}
+                                    <tr>
+                                        <td>{{ order.id }}</td>
+                                        <td>{{ order.symbol }}</td>
+                                        <td>{{ order.size }} $</td>
+                                        <td>{{ order.side }}</td>
+                                        <td>{{ order.price }}</td>
+                                        <td>{{ order.order_type }}</td>
+                                        <td>{{ order.stopPrice }}</td>
+                                        {% if object.orders_type == 'f' %}
+                                        <td>{{ order.stopPriceType }}</td>
+                                        <td>{{ order.leverage }}</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="?page={{page_obj.previous_page_number}}"
+                                                    aria-controls="example2" data-dt-idx="0" tabindex="0"
+                                                    class="page-link">قبلی</a>
+                                            </li>
+                                            {% endif %}
+
+                                            {% for page_num in paginator.page_range %}
+
+                                            {% if page_obj.number == page_num and not page_obj.has_next and not page_obj.has_previous %}
+                                            <p>صفحه بعدی وجود ندارد</p>
+                                            {% else %}
+                                            {% if page_obj.number == page_num %}
+                                            <li class="paginate_button page-item active">
+                                                <a aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+
+                                            {% else %}
+                                            <li class="paginate_button page-item"><a href="?page={{page_num}}"
+                                                    aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <li class="paginate_button page-item next" id="example2_next"><a
+                                                    href="?page={{page_obj.next_page_number}}" aria-controls="example2"
+                                                    data-dt-idx="7" tabindex="0" class="page-link">بعدی</a></li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+
+                    {% if not object.is_active or request.user|has_group:'مدیر' %}
+                        
+                    <div class="card card-warning card-outline">
+                        <div class="card-body box-profile">
+                            <h3 class="profile-username text-center">شرکت کنندگان</h3>
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>نام و نام خانوادگی</th>
+                                        <th>پرداخت شده / نشده</th>
+                                    </tr>
+                                    {% for participant in object.participants.all %}
+                                    <tr>
+                                        <td>{{ participant.id }}</td>
+                                        <td>{{ participant.full_name }}</td>
+                                        
+                                        {% if participant|user_is_payer:object %}
+                                        <td>پرداخت کرده</td>
+                                        {% else %}
+                                        <td>پرداخت نکرده</td>
+                                        {% endif %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="?page={{page_obj.previous_page_number}}"
+                                                    aria-controls="example2" data-dt-idx="0" tabindex="0"
+                                                    class="page-link">قبلی</a>
+                                            </li>
+                                            {% endif %}
+
+                                            {% for page_num in paginator.page_range %}
+
+                                            {% if page_obj.number == page_num and not page_obj.has_next and not page_obj.has_previous %}
+                                            <p>صفحه بعدی وجود ندارد</p>
+                                            {% else %}
+                                            {% if page_obj.number == page_num %}
+                                            <li class="paginate_button page-item active">
+                                                <a aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+
+                                            {% else %}
+                                            <li class="paginate_button page-item"><a href="?page={{page_num}}"
+                                                    aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <li class="paginate_button page-item next" id="example2_next"><a
+                                                    href="?page={{page_obj.next_page_number}}" aria-controls="example2"
+                                                    data-dt-idx="7" tabindex="0" class="page-link">بعدی</a></li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <!-- /.row -->

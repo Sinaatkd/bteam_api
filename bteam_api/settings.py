@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'admin_panel.templatetags.check_perm',
+    'admin_panel.templatetags.check_payment',
 
     # our applications
     'api_v1',
