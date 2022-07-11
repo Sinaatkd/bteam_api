@@ -787,11 +787,11 @@ class CreateInvoice(APIView):
             'pay_currency': 'USDT',
         }
         headers = {
-            'x-api-key': '7DM7S59-8HNM2SA-PZH7BQ5-1G311HX',
+            'x-api-key': os.getenv('PAYMENT_GATEWAY_API_KEY'),
             'ContentType': 'application/json',
         }
         r = requests.post(
-            'https://api-sandbox.nowpayments.io/v1/invoice/', data, headers=headers)
+            'https://api.nowpayments.io/v1/invoice/', data, headers=headers)
         return Response({'invoice_url': r.json()['invoice_url']})
 
 
