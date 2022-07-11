@@ -20,6 +20,8 @@ class BasketsList(ListView):
         raise Http404
 
     def get_queryset(self):
+        if self.request.user.groups.filter(name='مدیر').exists():
+            return Basket.objects.all() .order_by('-is_active', '-id')
         return Basket.objects.filter(trader=self.request.user).order_by('-is_active', '-id')
 
 
