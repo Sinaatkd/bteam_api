@@ -20,7 +20,7 @@ class BasketForm(forms.ModelForm):
     
     class Meta:
         model = Basket
-        exclude = ('trader','exchange','participants','blocked_users','is_freeze','is_accept_participant','is_active','orders_count', 'stages')
+        exclude = ('trader','exchange','participants','blocked_users','is_freeze','is_accept_participant','is_active','orders_count', 'stages', 'orders')
 
 
 class StageForm(forms.ModelForm):
