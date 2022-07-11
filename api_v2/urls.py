@@ -43,6 +43,7 @@ urlpatterns = [
     path('copy-trade/stage/<stage_id>/create-invoice/', CreateInvoice.as_view()),
     path('copy-trade/disconnect-apis/', DisConnectUserKucoinAPIs.as_view()),
     path('copy-trade/check-invoice/<stage_id>/<username>', SuccessInvoice.as_view()),
+    path('copy-trade/pay-cancel/', CancelInvoice.as_view()),
     path('copy-trade/left-basket/', LeftFromBasket.as_view()),
 
     # cron

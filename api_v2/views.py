@@ -2,6 +2,7 @@ import time
 import hashlib
 import base64
 import hmac
+from django.shortcuts import redirect
 import requests
 from math import ceil
 from datetime import timedelta, datetime
@@ -782,7 +783,7 @@ class CreateInvoice(APIView):
             'price_amount': stage.amount,
             'price_currency': 'usd',
             'success_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/check-invoice/{stage_id}/{username}',
-            'cancel_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/check-invoice/{stage_id}/{username}',
+            'cancel_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/pay-cancel/',
             'pay_currency': 'USDT',
         }
         headers = {
@@ -805,13 +806,13 @@ class SuccessInvoice(APIView):
             stage.payers.add(user)
             basket = Basket.objects.filter(stages__in=[stage]).first()
             basket.blocked_users.remove(user)
-            return Response({'status': 'ok', 'message': 'پرداخت شما با موفقیت انجام شد. لطفا مجدد وارد اپ شوید'})
+            return redirect('https://bteamroyal.com/pay-success')
         return Response({'status': 'not found', 'message': 'کاربر پیدا نشد'})
 
 
 class CancelInvoice(APIView):
     def get(self, request):
-        return Response({'status': 'error', 'message': 'پرداخت شما کنسل شد'})
+        return redirect('https://bteamroyal.com/pay-cancel')
 
 
 class DisConnectUserKucoinAPIs(APIView):
