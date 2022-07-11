@@ -77,19 +77,22 @@
                                     </a>
                                 </li>
                                 <li class="list-group-item">
-                                    {% if not object.is_freeze and object.is_active or request.user|has_group:'مدیر' %}
+                                    {% if not object.is_freeze and object.is_active %}
                                     <a href="{% url 'apply_order_for_participants' object.id  %}" class="btn btn-primary">اعمال معاملات برای همه</a>
-                                    <a href="{% url 'delete_basket' object.id %}" class="btn btn-danger">حذف سبد</a>
-                                    {% else %}
-                                    <button class="btn btn-primary disabled">سبد در حالت فریز</button>
                                     {% endif %}
                                     {% if request.user|has_group:'مدیر' %}
                                     <a href="{% url 'freeze_basket' object.id %}" class="btn btn-warning">فریز کردن</a>  
                                     {% endif %}
+                                    <a href="{% url  'delete_basket' object.id %}" class="btn btn-danger">حذف سبد</a>
                                 </li>
                                 {% if object.is_accept_participant %}
                                 <li class="list-group-item">
                                     <a href="{% url 'disabled_accept_participant' object.id %}" class="btn btn-warning">قطع پذیرش شرکت کننده</a>
+                                </li>
+                                {% endif %}
+                                {% if object.is_active and not object.is_freeze %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'deactive_basket' object.id %}" class="btn btn-warning">غیرفعال کردن سبد</a>
                                 </li>
                                 {% endif %}
                             </ul>

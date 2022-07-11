@@ -87,6 +87,7 @@ urlpatterns = [
     path('baskets/<int:pk>/apply-orders-for-participants', apply_order_for_participants, name='apply_order_for_participants'),
     path('baskets/<int:pk>/set-stage', set_stage, name='set_stage'),
     path('baskets/<int:pk>/freeze', freeze_basket, name='freeze_basket'),
+    path('baskets/<int:pk>/deactive', deactive_basket, name='deactive_basket'),
     
     path('login', admin_login, name='admin_login'),
 

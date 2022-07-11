@@ -179,3 +179,9 @@ def freeze_basket(request, pk):
     )
     thread.start()
     return redirect(request.META.get('HTTP_REFERER'))
+
+def deactive_basket(request, pk):
+    basket = Basket.objects.get(id=pk)
+    basket.is_active = False
+    basket.save()
+    return redirect(request.META.get('HTTP_REFERER'))
