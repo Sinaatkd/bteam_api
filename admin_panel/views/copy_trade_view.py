@@ -21,7 +21,7 @@ class BasketsList(ListView):
 
     def get_queryset(self):
         if self.request.user.groups.filter(name='مدیر').exists():
-            return Basket.objects.all() .order_by('-is_active', '-id')
+            return Basket.objects.all().order_by('-is_active', '-id')
         return Basket.objects.filter(trader=self.request.user).order_by('-is_active', '-id')
 
 
@@ -39,6 +39,12 @@ class CreateBasket(CreateView):
 class DetailBasket(DetailView):
     model = Basket
 
+    def dispatch(self, request, *args, **kwargs):
+        basket = Basket.objects.get(id=kwargs.get('pk'))
+        if request.user.groups.filter(name='مدیر').exists() or basket.trader == request.user:
+            return super().dispatch(request, *args, **kwargs)
+        raise Http404
+            
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['stage_form'] = StageForm(self.request.POST or None)
