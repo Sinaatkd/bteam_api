@@ -109,11 +109,12 @@ def apply_order_for_participants_thread(basket):
             del paylaod['order_type']
 
             for participant in basket.participants.all():
-                participant_api = participant.user_kucoin_api
-                api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
-                api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
-                api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
-                create_stop_order(basket.orders_type, api_key, api_secret, api_passphrase, **paylaod)
+                if basket.filter(blocked_users__in=[participant]).first() is None:
+                    participant_api = participant.user_kucoin_api
+                    api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
+                    api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
+                    api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
+                    create_stop_order(basket.orders_type, api_key, api_secret, api_passphrase, **paylaod)
 
 def apply_order_for_participants(request, pk):
     basket = Basket.objects.get(pk=pk)
