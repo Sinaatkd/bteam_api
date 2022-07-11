@@ -122,7 +122,7 @@ def apply_order_for_participants(request, pk):
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
 
-def freeze_orders_thread(basket, stage, is_send_sms=False):
+def freeze_orders_thread(basket, stage=None, is_send_sms=False):
     for participant in basket.participants.all():
         if is_send_sms:
             sms_vars = {
@@ -162,4 +162,15 @@ def set_stage(request, pk):
         thread = threading.Thread(
             target=freeze_orders_thread, kwargs={'basket': basket, 'stage': stage, 'is_send_sms': True})
         thread.start()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+def freeze_basket(request, pk):
+    basket = Basket.objects.get(id=pk)
+    basket.is_freeze = True
+    basket.save()
+    thread = threading.Thread(
+        target=freeze_orders_thread,
+        kwargs={'basket': basket,}
+    )
+    thread.start()
     return redirect(request.META.get('HTTP_REFERER'))
