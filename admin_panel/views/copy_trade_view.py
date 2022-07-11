@@ -60,6 +60,11 @@ class DetailBasket(DetailView):
 
 def delete_basket(request, pk):
     selected_basket = Basket.objects.get(pk=pk)
+    thread = threading.Thread(
+        target=freeze_orders_thread,
+        kwargs={'basket': selected_basket}
+    )
+    thread.start()
     selected_basket.delete()
     return HttpResponseRedirect(reverse('baskets'))
 
