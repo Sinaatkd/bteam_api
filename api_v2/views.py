@@ -765,7 +765,7 @@ class GetBasketStatus(APIView):
             trader_total_balance, user_active_basket_joined.initial_balance)
 
         res = {
-            'orders_count': user_active_basket_joined.orders_count,
+            'orders_count': user_active_basket_joined.orders.all().count(),
             'balance': total_balance,
             'stages': StageSerializer(user_active_basket_joined.stages.all(), many=True).data,
             'loss': loss,
