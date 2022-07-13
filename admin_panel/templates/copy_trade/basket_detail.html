@@ -103,6 +103,12 @@
                                     {% endif %}
                                 </li>
                                 {% endif %}
+                                {% if object.is_active and request.user|has_group:'مدیر' %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'cancel_orders' object.id %}" class="btn btn-warning">کنسل کردن معاملات</a>
+                                    <a href="{% url 'sell_orders' object.id %}" class="btn btn-warning">فروش معاملات</a>
+                                </li>
+                                {% endif %}
                             </ul>
                         </div>
                         <!-- /.card-body -->

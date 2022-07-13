@@ -88,6 +88,8 @@ urlpatterns = [
     path('baskets/<int:pk>/set-stage', set_stage, name='set_stage'),
     path('baskets/<int:pk>/freeze', freeze_basket, name='freeze_basket'),
     path('baskets/<int:pk>/deactive', deactive_basket, name='deactive_basket'),
+    path('baskets/<int:pk>/cancel-orders', cancel_orders, name='cancel_orders'),
+    path('baskets/<int:pk>/sell-orders', sell_orders, name='sell_orders'),
     
     path('login', admin_login, name='admin_login'),
 

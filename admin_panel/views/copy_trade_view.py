@@ -126,7 +126,7 @@ def apply_order_for_participants(request, pk):
     return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
 
-def freeze_orders_thread(basket, stage=None, is_send_sms=False):
+def freeze_orders_thread(basket, stage=None, is_send_sms=False, is_cancel_orders=True, is_sell_orders=True):
     for participant in basket.participants.all():
         if is_send_sms:
             sms_vars = {
@@ -139,20 +139,22 @@ def freeze_orders_thread(basket, stage=None, is_send_sms=False):
         api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
         api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
         api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
-        cancel_all_orders(basket.orders_type, api_key, api_secret, api_passphrase)
-        if basket.orders_type == 's':
-            currencies = get_balance(api_key, api_secret, api_passphrase)
-            currencies = list(filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
-            for currency in currencies:
-                if float(currency.get('available')) > 0:
-                    available_balance = currency.get('available')
-                    paylaod = {
-                        'symbol': f'{currency.get("currency")}-USDT',
-                        'size': float(available_balance[:6]),
-                        'side': 'sell',
-                        'type': 'market',
-                }
-            create_order('s', api_key, api_secret, api_passphrase, **paylaod)
+        if is_cancel_orders:
+            cancel_all_orders(basket.orders_type, api_key, api_secret, api_passphrase)
+        if is_sell_orders:
+            if basket.orders_type == 's':
+                currencies = get_balance(api_key, api_secret, api_passphrase)
+                currencies = list(filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
+                for currency in currencies:
+                    if float(currency.get('available')) > 0:
+                        available_balance = currency.get('available')
+                        paylaod = {
+                            'symbol': f'{currency.get("currency")}-USDT',
+                            'size': float(available_balance[:6]),
+                            'side': 'sell',
+                            'type': 'market',
+                    }
+                create_order('s', api_key, api_secret, api_passphrase, **paylaod)
 
 def set_stage(request, pk):
     stage = Stage.objects.get(pk=pk)
@@ -184,4 +186,23 @@ def deactive_basket(request, pk):
     basket = Basket.objects.get(id=pk)
     basket.is_active = not basket.is_active
     basket.save()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+def cancel_orders(request, pk):
+    basket = Basket.objects.get(id=pk)
+    thread = threading.Thread(
+        target=freeze_orders_thread,
+        kwargs={'basket': basket, 'is_sell_orders': False}
+    )
+    thread.start()
+    return redirect(request.META.get('HTTP_REFERER'))
+
+
+def sell_orders(request, pk):
+    basket = Basket.objects.get(id=pk)
+    thread = threading.Thread(
+        target=freeze_orders_thread,
+        kwargs={'basket': basket, 'is_cancel_orders': False}
+    )
+    thread.start()
     return redirect(request.META.get('HTTP_REFERER'))
