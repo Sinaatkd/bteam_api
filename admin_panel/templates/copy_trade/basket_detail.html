@@ -81,18 +81,26 @@
                                     <a href="{% url 'apply_order_for_participants' object.id  %}" class="btn btn-primary">اعمال معاملات برای همه</a>
                                     {% endif %}
                                     {% if request.user|has_group:'مدیر' %}
+                                    {% if  not object.is_freeze %}
                                     <a href="{% url 'freeze_basket' object.id %}" class="btn btn-warning">فریز کردن</a>  
+                                    {% else %}
+                                    <a href="{% url 'freeze_basket' object.id %}" class="btn btn-success">خارج کردن فریز</a>  
                                     {% endif %}
                                     <a href="{% url  'delete_basket' object.id %}" class="btn btn-danger">حذف سبد</a>
+                                    {% endif %}
                                 </li>
                                 {% if object.is_accept_participant %}
                                 <li class="list-group-item">
                                     <a href="{% url 'disabled_accept_participant' object.id %}" class="btn btn-warning">قطع پذیرش شرکت کننده</a>
                                 </li>
                                 {% endif %}
-                                {% if object.is_active and not object.is_freeze %}
                                 <li class="list-group-item">
+                                {% if object.is_active %}
                                     <a href="{% url 'deactive_basket' object.id %}" class="btn btn-warning">غیرفعال کردن سبد</a>
+                                    {% else %}
+                                    {% if request.user|has_group:'مدیر' %}
+                                    <a href="{% url 'deactive_basket' object.id %}" class="btn btn-success">فعال کردن سبد</a>
+                                    {% endif %}
                                 </li>
                                 {% endif %}
                             </ul>

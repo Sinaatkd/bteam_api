@@ -130,9 +130,9 @@ def freeze_orders_thread(basket, stage=None, is_send_sms=False):
     for participant in basket.participants.all():
         if is_send_sms:
             sms_vars = {
-                'firstname': participant.fullname.slpit()[0],
-                'bedehi': stage.amount,
-                'shenase': stage.id
+                'firstname': participant.full_name.split()[0],
+                'bedehi': f'{stage.amount}$',
+                'shenase': str(stage.id)
             }
             send_sms('9qezu3javzezsef', participant.phone_number, sms_vars)
         participant_api = participant.user_kucoin_api
@@ -170,17 +170,18 @@ def set_stage(request, pk):
 
 def freeze_basket(request, pk):
     basket = Basket.objects.get(id=pk)
-    basket.is_freeze = True
+    basket.is_freeze = not basket.is_freeze
     basket.save()
-    thread = threading.Thread(
-        target=freeze_orders_thread,
-        kwargs={'basket': basket,}
-    )
-    thread.start()
+    if basket.is_freeze:
+        thread = threading.Thread(
+            target=freeze_orders_thread,
+            kwargs={'basket': basket,}
+        )
+        thread.start()
     return redirect(request.META.get('HTTP_REFERER'))
 
 def deactive_basket(request, pk):
     basket = Basket.objects.get(id=pk)
-    basket.is_active = False
+    basket.is_active = not basket.is_active
     basket.save()
     return redirect(request.META.get('HTTP_REFERER'))
