@@ -83,11 +83,10 @@ def apply_order_for_participants_thread(basket):
     trader_active_orders = get_active_orders(
         basket.orders_type, api_key, secret_key, passphrase)
     for order in trader_active_orders:
-        order_created_time = str(order.get('createdAt'))[:-3]
+        order_created_time = str(order.get('createdAt'))
         five_minute_ago_timestamp = (
-            datetime.now() - timedelta(minutes=5)).timestamp()
-
-
+            datetime.now() - timedelta(minutes=5)).timestamp() * 1000
+        
         if float(order_created_time) > five_minute_ago_timestamp:
             paylaod = {
                 'symbol': order.get('symbol', None),
@@ -112,7 +111,7 @@ def apply_order_for_participants_thread(basket):
             del paylaod['order_type']
 
             for participant in basket.participants.all():
-                if basket.filter(blocked_users__in=[participant]).first() is None:
+                if not basket.blocked_users.filter(id=participant.id).exists():
                     participant_api = participant.user_kucoin_api
                     api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
                     api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
