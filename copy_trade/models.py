@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse
 from account.models import User
 
 
@@ -56,3 +57,8 @@ class Basket(models.Model):
 
     def __str__(self) -> str:
         return f'{self.trader} - {self.win_rate}'
+
+    
+    def get_absolute_url(self):
+        return reverse('detail_basket', kwargs={'pk': self.id})
+        

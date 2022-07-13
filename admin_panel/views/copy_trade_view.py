@@ -2,8 +2,8 @@ import threading
 from datetime import datetime, timedelta
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse
-from django.views.generic import ListView, CreateView, DetailView
+from django.urls import reverse, reverse_lazy
+from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
 from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, send_sms
@@ -22,6 +22,15 @@ class BasketsList(ListView):
             return Basket.objects.all().order_by('-is_active', '-id')
         return Basket.objects.filter(trader=self.request.user).order_by('-is_active', '-id')
 
+
+class BasketEdit(UpdateView):
+    model = Basket
+    form_class = BasketForm
+    
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.groups.filter(name='مدیر').exists():
+            return super().dispatch(request, *args, **kwargs)
+        raise Http404
 
 class CreateBasket(CreateView):
     model = Basket

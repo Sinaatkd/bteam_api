@@ -109,6 +109,11 @@
                                     <a href="{% url 'sell_orders' object.id %}" class="btn btn-warning">فروش معاملات</a>
                                 </li>
                                 {% endif %}
+                                {% if request.user|has_group:'مدیر' %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'edit_basket' object.id %}" class="btn btn-info">ویرایش</a>
+                                </li>
+                                {% endif %}
                             </ul>
                         </div>
                         <!-- /.card-body -->
