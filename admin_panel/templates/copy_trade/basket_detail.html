@@ -146,28 +146,30 @@
                     <div class="card card-warning card-outline">
                         <div class="card-body box-profile">
                             <h3 class="profile-username text-center">استیج ها</h3>
-                            <table class="table table-hover">
-                                <tbody>
-                                    <tr>
-                                        <th>شناسه</th>
-                                        <th>عنوان</th>
-                                        <th>مبلغ</th>
-                                        <th>به استیج رسیده / نرسیده</th>
-                                        <th>دستورات</th>
-                                    </tr>
-                                    {% for stage in object.stages.all %}
-                                    <tr>
-                                        <td>{{ stage.id }}</td>
-                                        <td>{{ stage.title }}</td>
-                                        <td>{{ stage.amount }} $</td>
-                                        <td>{{ stage.is_pay_time }}</td>
-                                        <td>
-                                            <a class="btn btn-outline-info" href="{% url 'set_stage' stage.id  %}">به استیچ رسیدیم</a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>شناسه</th>
+                                            <th>عنوان</th>
+                                            <th>مبلغ</th>
+                                            <th>به استیج رسیده / نرسیده</th>
+                                            <th>دستورات</th>
+                                        </tr>
+                                        {% for stage in object.stages.all %}
+                                        <tr>
+                                            <td>{{ stage.id }}</td>
+                                            <td>{{ stage.title }}</td>
+                                            <td>{{ stage.amount }} $</td>
+                                            <td>{{ stage.is_pay_time }}</td>
+                                            <td>
+                                                <a class="btn btn-outline-info" href="{% url 'set_stage' stage.id  %}">به استیچ رسیدیم</a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
@@ -217,38 +219,40 @@
                     <div class="card card-warning card-outline">
                         <div class="card-body box-profile">
                             <h3 class="profile-username text-center">Orders</h3>
-                            <table class="table table-hover">
-                                <tbody>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>symbol</th>
-                                        <th>size</th>
-                                        <th>side</th>
-                                        <th>price</th>
-                                        <th>order type</th>
-                                        <th>stop price</th>
-                                        {% if object.orders_type == 'f' %}
-                                        <th>stop price type</th>
-                                        <th>leverage</th>
-                                        {% endif %}
-                                    </tr>
-                                    {% for order in object.orders.all %}
-                                    <tr>
-                                        <td>{{ order.id }}</td>
-                                        <td>{{ order.symbol }}</td>
-                                        <td>{{ order.size }} $</td>
-                                        <td>{{ order.side }}</td>
-                                        <td>{{ order.price }}</td>
-                                        <td>{{ order.order_type }}</td>
-                                        <td>{{ order.stopPrice }}</td>
-                                        {% if object.orders_type == 'f' %}
-                                        <td>{{ order.stopPriceType }}</td>
-                                        <td>{{ order.leverage }}</td>
-                                        {% endif %}
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>symbol</th>
+                                            <th>size</th>
+                                            <th>side</th>
+                                            <th>price</th>
+                                            <th>order type</th>
+                                            <th>stop price</th>
+                                            {% if object.orders_type == 'f' %}
+                                            <th>stop price type</th>
+                                            <th>leverage</th>
+                                            {% endif %}
+                                        </tr>
+                                        {% for order in object.orders.all %}
+                                        <tr>
+                                            <td>{{ order.id }}</td>
+                                            <td>{{ order.symbol }}</td>
+                                            <td>{{ order.size }} $</td>
+                                            <td>{{ order.side }}</td>
+                                            <td>{{ order.price }}</td>
+                                            <td>{{ order.order_type }}</td>
+                                            <td>{{ order.stopPrice }}</td>
+                                            {% if object.orders_type == 'f' %}
+                                            <td>{{ order.stopPriceType }}</td>
+                                            <td>{{ order.leverage }}</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
@@ -300,27 +304,29 @@
                     <div class="card card-warning card-outline">
                         <div class="card-body box-profile">
                             <h3 class="profile-username text-center">شرکت کنندگان</h3>
-                            <table class="table table-hover">
-                                <tbody>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>نام و نام خانوادگی</th>
-                                        <th>پرداخت شده / نشده</th>
-                                    </tr>
-                                    {% for participant in object.participants.all %}
-                                    <tr>
-                                        <td>{{ participant.id }}</td>
-                                        <td>{{ participant.full_name }}</td>
-                                        
-                                        {% if participant|user_is_payer:object %}
-                                        <td>پرداخت کرده</td>
-                                        {% else %}
-                                        <td>پرداخت نکرده</td>
-                                        {% endif %}
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>نام و نام خانوادگی</th>
+                                            <th>پرداخت شده / نشده</th>
+                                        </tr>
+                                        {% for participant in object.participants.all %}
+                                        <tr>
+                                            <td>{{ participant.id }}</td>
+                                            <td>{{ participant.full_name }}</td>
+                                            
+                                            {% if participant|user_is_payer:object %}
+                                            <td>پرداخت کرده</td>
+                                            {% else %}
+                                            <td>پرداخت نکرده</td>
+                                            {% endif %}
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                             <div class="row">
                                 <div class="col-12">
                                     <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
