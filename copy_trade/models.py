@@ -25,6 +25,8 @@ class Order(models.Model):
     stopPriceType = models.CharField(max_length=100, null=True, blank=True)
     leverage = models.CharField(max_length=100, null=True, blank=True)
     order_type = models.CharField(max_length=100, null=True, blank=True)
+    stop_loss = models.FloatField(null=True, blank=True)
+    target = models.FloatField(null=True, blank=True)
     
     def __str__(self) -> str:
         return self.symbol
