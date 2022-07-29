@@ -2,7 +2,7 @@ import threading
 from datetime import datetime, timedelta
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
@@ -66,6 +66,19 @@ class DetailBasket(DetailView):
         selected_basket.stages.add(new_stage)
         return HttpResponseRedirect(reverse('detail_basket', kwargs={'pk': pk}))
 
+
+def set_tp_sl(request):
+    print('i am here')
+    order_id = request.POST.get('order_id', 0)
+    stop_loss = request.POST.get('stop_loss', 0)
+    target = request.POST.get('target', 0)
+    order = Order.objects.filter(id=order_id).first()
+    if order is not None:
+        order.stop_loss = stop_loss
+        order.target = target
+        order.save()
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    
 
 def delete_basket(request, pk):
     selected_basket = Basket.objects.get(pk=pk)
@@ -177,7 +190,7 @@ def set_stage(request, pk):
         thread = threading.Thread(
             target=freeze_orders_thread, kwargs={'basket': basket, 'stage': stage, 'is_send_sms': True})
         thread.start()
-    return redirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def freeze_basket(request, pk):
     basket = Basket.objects.get(id=pk)
@@ -189,13 +202,13 @@ def freeze_basket(request, pk):
             kwargs={'basket': basket,}
         )
         thread.start()
-    return redirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def deactive_basket(request, pk):
     basket = Basket.objects.get(id=pk)
     basket.is_active = not basket.is_active
     basket.save()
-    return redirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 def cancel_orders(request, pk):
     basket = Basket.objects.get(id=pk)
@@ -204,7 +217,7 @@ def cancel_orders(request, pk):
         kwargs={'basket': basket, 'is_sell_orders': False}
     )
     thread.start()
-    return redirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
 def sell_orders(request, pk):
@@ -214,4 +227,4 @@ def sell_orders(request, pk):
         kwargs={'basket': basket, 'is_cancel_orders': False}
     )
     thread.start()
-    return redirect(request.META.get('HTTP_REFERER'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

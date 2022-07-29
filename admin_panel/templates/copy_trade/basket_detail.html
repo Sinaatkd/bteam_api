@@ -234,6 +234,7 @@
                                             <th>stop price type</th>
                                             <th>leverage</th>
                                             {% endif %}
+                                            <th>TP/SL</th>
                                         </tr>
                                         {% for order in object.orders.all %}
                                         <tr>
@@ -248,6 +249,39 @@
                                             <td>{{ order.stopPriceType }}</td>
                                             <td>{{ order.leverage }}</td>
                                             {% endif %}
+                                            <td>
+                                                <!-- Button trigger modal -->
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tp-sl-modal">
+                                                    {% if order.target and order.stop_loss %}
+                                                        ویرایش TP/SL
+                                                    {% else %}
+                                                        تنظیم کردن
+                                                    {% endif %}
+                                                </button>
+                                                
+                                                <!-- Modal -->
+                                                <div class="modal fade" id="tp-sl-modal" tabindex="-1" role="dialog" aria-labelledby="TP SL" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                        <h5 class="modal-title" id="TP SL">TP/SL</h5>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form action="{% url 'set_tp_sl' %}" method="POST">
+                                                                {% csrf_token %}
+                                                                <input type="hidden" name="order_id" class="form-control mt-1" value="{{ order.id }}">
+                                                                <input type="number" name="stop_loss" class="form-control mt-1" value="{{ order.stop_loss }}" placeholder="Stop Loss">
+                                                                <input type="number" name="target" class="form-control mt-1" value="{{ order.target }}" placeholder="Target">
+                                                                <button class="btn btn-primary btn-block mt-2" type="submit">ذخیره</button>
+                                                            </form>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-danger btn-block" data-dismiss="modal">بستن</button>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>

@@ -91,6 +91,7 @@ urlpatterns = [
     path('baskets/<int:pk>/deactive', deactive_basket, name='deactive_basket'),
     path('baskets/<int:pk>/cancel-orders', cancel_orders, name='cancel_orders'),
     path('baskets/<int:pk>/sell-orders', sell_orders, name='sell_orders'),
+    path('baskets/set-tp-sl', set_tp_sl, name='set_tp_sl'),
     
     path('login', admin_login, name='admin_login'),
 
