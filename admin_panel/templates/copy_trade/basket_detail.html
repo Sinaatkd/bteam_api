@@ -270,8 +270,8 @@
                                                             <form action="{% url 'set_tp_sl' %}" method="POST">
                                                                 {% csrf_token %}
                                                                 <input type="hidden" name="order_id" class="form-control mt-1" value="{{ order.id }}">
-                                                                <input type="number" name="stop_loss" class="form-control mt-1" value="{{ order.stop_loss }}" placeholder="Stop Loss">
-                                                                <input type="number" name="target" class="form-control mt-1" value="{{ order.target }}" placeholder="Target">
+                                                                <input type="number" step=any name="stop_loss" class="form-control mt-1" value="{{ order.stop_loss }}" placeholder="Stop Loss">
+                                                                <input type="number" step=any name="target" class="form-control mt-1" value="{{ order.target }}" placeholder="Target">
                                                                 <button class="btn btn-primary btn-block mt-2" type="submit">ذخیره</button>
                                                             </form>
                                                         </div>

@@ -68,7 +68,6 @@ class DetailBasket(DetailView):
 
 
 def set_tp_sl(request):
-    print('i am here')
     order_id = request.POST.get('order_id', 0)
     stop_loss = request.POST.get('stop_loss', 0)
     target = request.POST.get('target', 0)
