@@ -1,12 +1,11 @@
 import threading
 from datetime import datetime, timedelta
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import redirect
 from django.urls import reverse
 from django.views.generic import ListView, CreateView, DetailView, UpdateView
 from admin_panel.forms import BasketForm, StageForm
 from copy_trade.models import Basket, Order, Stage
-from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, send_sms
+from utilities import cancel_all_orders, create_stop_order, create_order, get_active_orders, get_balance, get_user_kucoin_apis, send_sms
 
 
 class BasketsList(ListView):
@@ -134,9 +133,7 @@ def apply_order_for_participants_thread(basket):
             for participant in basket.participants.all():
                 if not basket.blocked_users.filter(id=participant.id).exists():
                     participant_api = participant.user_kucoin_api
-                    api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
-                    api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
-                    api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
+                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
                     create_stop_order(basket.orders_type, api_key, api_secret, api_passphrase, **paylaod)
 
 def apply_order_for_participants(request, pk):

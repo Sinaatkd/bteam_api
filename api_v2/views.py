@@ -11,7 +11,7 @@ from django.core.files.base import ContentFile
 from django.db.models import Sum
 from rest_framework.generics import CreateAPIView
 from banner.models import Banner
-from copy_trade.models import Basket
+from copy_trade.models import Basket, Order
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
 
@@ -648,6 +648,64 @@ class CheckUserSpecialAccount(APIView):
                 send_sms('3egblee8ys', str(transaction.user.phone_number), {
                          'name': transaction.user.full_name.split()[0]})
                 transaction.delete()
+        return Response({'message': 'ok'})
+
+
+class CheckCopyTradeStopLossTarget(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        orders = Order.objects.filter(stop_loss__isnull=False, target__isnull=False)
+        for order in orders:
+            basket = Basket.objects.filter(orders__in=[order]).first()
+            if basket.orders_type == 's':
+                api = basket.trader_spot_api
+                secret = basket.trader_spot_secret
+                passphrase = basket.trader_spot_passphrase
+            else:
+                api = basket.trader_futures_api
+                secret = basket.trader_futures_secret
+                passphrase = basket.trader_futures_passphrase
+            current_price = get_cryptocurrency_price(basket.orders_type, order.symbol, api, secret, passphrase)
+            current_price = float(current_price)
+            if (current_price < order.stop_loss or current_price > order.target) and basket.orders_type == 's':
+                for participant in basket.participants.all():
+                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
+                    currency_available_size = get_user_currency_balance(api_key, api_secret, api_passphrase, order.symbol)
+                    payload = {
+                        'symbol': order.symbol,
+                        'size': float(currency_available_size[:6]),
+                        'side': 'sell',
+                        'type': 'market'
+                    }
+                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                order.delete()
+            elif (current_price > order.stop_loss or current_price < order.target) and order.side == 'sell' and basket.orders_type == 'f':
+                side = 'buy'
+                for participant in basket.participants.all():
+                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
+                    payload = {
+                        'symbol': order.symbol,
+                        'size': order.size,
+                        'side': side,
+                        'type': 'market'
+                    }
+                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                order.delete()
+            elif (current_price < order.stop_loss or current_price > order.target) and order.side == 'buy' and basket.orders_type == 'f':
+                side = 'sell'
+                for participant in basket.participants.all():
+                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
+                    payload = {
+                        'symbol': order.symbol,
+                        'size': order.size,
+                        'side': side,
+                        'type': 'market'
+                    }
+                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                order.delete()
+
         return Response({'message': 'ok'})
 
 

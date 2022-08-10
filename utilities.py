@@ -197,6 +197,20 @@ def get_balance(api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()['data']
 
+def get_user_currency_balance(api_key, api_secret, api_passphrase, symbol):
+    currencies = get_balance(api_key, api_secret, api_passphrase)
+    symbol = symbol.split('-')[0]
+    selected_currency = list(filter(lambda x: x['type']=='trade' and x['currency']==symbol, currencies))[0]
+    return selected_currency['available']
+
+
+def get_user_kucoin_apis(participant, basket):
+    participant_api = participant.user_kucoin_api
+    api_key = participant_api.spot_api_key if basket.orders_type == 's' else participant_api.futures_api_key
+    api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
+    api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
+
+    return api_key, api_secret, api_passphrase
 
 def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     url = f'https://api.kucoin.com/api/v1/prices'
