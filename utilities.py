@@ -346,3 +346,27 @@ def cancel_all_orders(order_type, api_key, api_secret, api_passphrase):
     }
     response = requests.request('delete', url, headers=headers)
     return response.json()
+
+def get_cryptocurrency_price(order_type, symbol, api_key, api_secret, api_passphrase):
+    now = int(time.time() * 1000)
+    if order_type == 's':
+        url = f'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={symbol}'
+        str_to_sign = str(now) + 'GET' + f'/api/v1/market/orderbook/level1?symbol={symbol}'
+    else:
+        url = f'https://api-futures.kucoin.com/api/v1/ticker?symbol={symbol}'
+        str_to_sign = str(now) + 'GET' + f'/api/v1/ticker?symbol={symbol}'
+    
+    signature = base64.b64encode(
+        hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
+    passphrase = base64.b64encode(hmac.new(api_secret.encode(
+        'utf-8'), api_passphrase.encode('utf-8'), hashlib.sha256).digest())
+    headers = {
+        "KC-API-SIGN": signature,
+        "KC-API-TIMESTAMP": str(now),
+        "KC-API-KEY": api_key,
+        "KC-API-PASSPHRASE": passphrase,
+        "KC-API-KEY-VERSION": "2",
+        'Content-Type': 'application/json'
+    }
+    response = requests.request('get', url, headers=headers)
+    return response.json()['data']['price']
