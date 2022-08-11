@@ -251,7 +251,7 @@
                                             {% endif %}
                                             <td>
                                                 <!-- Button trigger modal -->
-                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tp-sl-modal">
+                                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#tp-sl-modal-{{order.id}}">
                                                     {% if order.target and order.stop_loss %}
                                                         ویرایش TP/SL
                                                     {% else %}
@@ -260,7 +260,7 @@
                                                 </button>
                                                 
                                                 <!-- Modal -->
-                                                <div class="modal fade" id="tp-sl-modal" tabindex="-1" role="dialog" aria-labelledby="TP SL" aria-hidden="true">
+                                                <div class="modal fade" id="tp-sl-modal-{{order.id}}" tabindex="-1" role="dialog" aria-labelledby="TP SL" aria-hidden="true">
                                                     <div class="modal-dialog modal-dialog-centered" role="document">
                                                     <div class="modal-content">
                                                         <div class="modal-header">
