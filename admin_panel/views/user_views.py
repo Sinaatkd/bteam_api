@@ -180,11 +180,22 @@ class UsersList(ListView):
 
 class UsersFullAuthList(ListView):
     template_name = 'users/users_list.html'
-    paginate_by = 20
 
     def get_queryset(self):
-        queryset = User.objects.filter(father_name__isnull=False).order_by('-id')
+        queryset = User.objects.filter(father_name__isnull=False, is_full_authentication=False).order_by('-id')
+        print(queryset)
         s = self.request.GET.get('s')
         if s is not None:
-            queryset = User.objects.filter(father_name__isnull=False, full_name__icontains=s).order_by('-id')
+            queryset = User.objects.filter(father_name__isnull=False, full_name__icontains=s, is_full_authentication=False).order_by('-id')
         return queryset
+    
+    def get_context_data(self, **kwargs):
+        confirmed_users = User.objects.filter(father_name__isnull=False, is_full_authentication=True).order_by('-id')
+        s = self.request.GET.get('s')
+        if s is not None:
+            confirmed_users = User.objects.filter(father_name__isnull=False, full_name__icontains=s, is_full_authentication=True).order_by('-id')
+        context = {
+            'confirmed_users': confirmed_users
+        }
+        print(super().get_context_data(**kwargs, **context))
+        return super().get_context_data(**kwargs, **context)
