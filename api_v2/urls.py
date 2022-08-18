@@ -50,4 +50,5 @@ urlpatterns = [
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),
     path('cron/check-user-special-account/', CheckUserSpecialAccount.as_view()),
     path('cron/check-copy-trade-stop-loss-target/', CheckCopyTradeStopLossTarget.as_view()),
+    path('cron/check-copy-trade-basket-stages/', CheckCopyTradeBasketStages.as_view()),
 ]

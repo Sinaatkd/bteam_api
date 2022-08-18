@@ -197,5 +197,4 @@ class UsersFullAuthList(ListView):
         context = {
             'confirmed_users': confirmed_users
         }
-        print(super().get_context_data(**kwargs, **context))
         return super().get_context_data(**kwargs, **context)

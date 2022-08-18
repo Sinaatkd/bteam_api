@@ -709,6 +709,24 @@ class CheckCopyTradeStopLossTarget(APIView):
         return Response({'message': 'ok'})
 
 
+class CheckCopyTradeBasketStages(APIView):
+    authentication_classes = []
+    permission_classes = []
+    
+    def get(self, request):
+        # Remove the basket from freezing after 24 hours
+        baskets = Basket.objects.all()
+        for basket in baskets:
+            if basket.is_freeze:
+                last_pay_time_stage = basket.stages.filter(is_pay_time=True).last()
+                if last_pay_time_stage:
+                    if diff_between_two_dates(now(), last_pay_time_stage.pay_datetime).days >= 1:
+                        basket.is_freeze = False
+                        basket.is_active = True
+                        basket.save()
+        return Response({'message': 'ok'})
+
+
 class OrderBaskets(ListAPIView):
     queryset = Basket.objects.filter(is_accept_participant=True)
     serializer_class = BasketSerializer
