@@ -9,8 +9,6 @@ class Command(BaseCommand):
         transactions = Transaction.objects.filter(is_confirmation=True)
         for transaction in transactions:
             result = diff_between_two_dates(transaction.date_of_approval + timedelta(transaction.validity_rate + 1), timezone.now()).days
-            print(result)
-            print(transaction.user.phone_number)
             if result == 10:
                 send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
             elif result == 5:

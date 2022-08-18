@@ -9,7 +9,6 @@ class Command(BaseCommand):
         for transaction in transactions:
             # minutes
             result = diff_between_two_dates(timezone.now(), transaction.last_updated_time).seconds / 60
-            print(result)
             if result >= 3 and transaction.transaction_status !='در صف ورود' and transaction.transaction_status != 'ارسال به مرکز کنترل':
                 transaction.transaction_status = 'در صف ورود'
                 transaction.save()

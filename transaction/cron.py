@@ -8,8 +8,6 @@ def check_user_special_account():
     transactions = Transaction.objects.filter(is_confirmation=True)
     for transaction in transactions:
         result = diff_between_two_dates(transaction.date_of_approval + timedelta(transaction.validity_rate + 1), timezone.now()).days
-        print(result)
-        print(transaction.user.phone_number)
         if result == 10:
             send_sms('np5tviaoag', str(transaction.user.phone_number), {'date_cnt': str(result)})
         elif result == 5:
@@ -28,7 +26,6 @@ def check_user_transaction_status():
     for transaction in transactions:
         # minutes
         result = diff_between_two_dates(timezone.now(), transaction.last_updated_time).seconds / 60
-        print(result)
         if result >= 3 and transaction.transaction_status !='در صف ورود' and transaction.transaction_status != 'ارسال به مرکز کنترل':
             transaction.transaction_status = 'در صف ورود'
             transaction.save()

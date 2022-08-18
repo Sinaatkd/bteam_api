@@ -183,7 +183,6 @@ class UsersFullAuthList(ListView):
 
     def get_queryset(self):
         queryset = User.objects.filter(father_name__isnull=False, is_full_authentication=False).order_by('-id')
-        print(queryset)
         s = self.request.GET.get('s')
         if s is not None:
             queryset = User.objects.filter(father_name__isnull=False, full_name__icontains=s, is_full_authentication=False).order_by('-id')
