@@ -660,29 +660,62 @@ class CheckCopyTradeStopLossTarget(APIView):
         for order in orders:
             basket = Basket.objects.filter(orders__in=[order]).first()
             if basket.orders_type == 's':
-                api = basket.trader_spot_api
-                secret = basket.trader_spot_secret
-                passphrase = basket.trader_spot_passphrase
+                trader_api = basket.trader_spot_api
+                trader_secret = basket.trader_spot_secret
+                trader_passphrase = basket.trader_spot_passphrase
             else:
-                api = basket.trader_futures_api
-                secret = basket.trader_futures_secret
-                passphrase = basket.trader_futures_passphrase
-            current_price = get_cryptocurrency_price(basket.orders_type, order.symbol, api, secret, passphrase)
+                trader_api = basket.trader_futures_api
+                trader_secret = basket.trader_futures_secret
+                trader_passphrase = basket.trader_futures_passphrase
+            current_price = get_cryptocurrency_price(basket.orders_type, order.symbol, trader_api, trader_secret, trader_passphrase)
             current_price = float(current_price)
+            
             if (current_price < order.stop_loss or current_price > order.target) and basket.orders_type == 's':
-                for participant in basket.participants.all():
-                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
-                    currency_available_size = get_user_currency_balance(api_key, api_secret, api_passphrase, order.symbol)
+                try:
+                    # START apply for trader
+                    currency_available_size = get_user_currency_balance(trader_api, trader_secret, trader_passphrase, order.symbol)
                     payload = {
                         'symbol': order.symbol,
                         'size': float(currency_available_size[:6]),
                         'side': 'sell',
                         'type': 'market'
                     }
-                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                    create_order('s', trader_api, trader_secret, trader_passphrase, **payload)
+                    # END apply for trader
+                except:
+                    pass
+                # START apply for participants
+                for participant in basket.participants.all():
+                    try:
+                        api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
+                        currency_available_size = get_user_currency_balance(api_key, api_secret, api_passphrase, order.symbol)
+                        payload = {
+                            'symbol': order.symbol,
+                            'size': float(currency_available_size[:6]),
+                            'side': 'sell',
+                            'type': 'market'
+                        }
+                        create_order('s', api_key, api_secret, api_passphrase, **payload)
+                    except:
+                        pass
+                # END apply for participants
                 order.delete()
+
             elif (current_price > order.stop_loss or current_price < order.target) and order.side == 'sell' and basket.orders_type == 'f':
                 side = 'buy'
+                try:
+                # START apply for trader
+                    payload = {
+                        'symbol': order.symbol,
+                        'size': order.size,
+                        'side': side,
+                        'type': 'market'
+                    }
+                    create_order('f', trader_api, trader_secret, trader_passphrase, **payload)
+                    # END apply for trader
+                except:
+                    pass
+                # START apply for participants
                 for participant in basket.participants.all():
                     api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
                     payload = {
@@ -691,10 +724,25 @@ class CheckCopyTradeStopLossTarget(APIView):
                         'side': side,
                         'type': 'market'
                     }
-                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                    create_order('f', api_key, api_secret, api_passphrase, **payload)
+                # END apply for participants
                 order.delete()
             elif (current_price < order.stop_loss or current_price > order.target) and order.side == 'buy' and basket.orders_type == 'f':
                 side = 'sell'
+                try:
+                # START apply for trader
+                    payload = {
+                        'symbol': order.symbol,
+                        'size': order.size,
+                        'side': side,
+                        'type': 'market'
+                    }
+                    create_order('f', trader_api, trader_secret, trader_passphrase, **payload)
+                    # END apply for trader
+                except:
+                    pass
+
+                # START apply for participants
                 for participant in basket.participants.all():
                     api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
                     payload = {
@@ -703,7 +751,9 @@ class CheckCopyTradeStopLossTarget(APIView):
                         'side': side,
                         'type': 'market'
                     }
-                    create_order('s', api_key, api_secret, api_passphrase, **payload)
+                    create_order('f', api_key, api_secret, api_passphrase, **payload)
+                # END apply for participants
+
                 order.delete()
 
         return Response({'message': 'ok'})
