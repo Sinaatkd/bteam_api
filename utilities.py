@@ -197,10 +197,12 @@ def get_balance(api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()['data']
 
+
 def get_user_currency_balance(api_key, api_secret, api_passphrase, symbol):
     currencies = get_balance(api_key, api_secret, api_passphrase)
     symbol = symbol.split('-')[0]
-    selected_currency = list(filter(lambda x: x['type']=='trade' and x['currency']==symbol, currencies))[0]
+    selected_currency = list(filter(
+        lambda x: x['type'] == 'trade' and x['currency'] == symbol, currencies))[0]
     return selected_currency['available']
 
 
@@ -211,6 +213,7 @@ def get_user_kucoin_apis(participant, basket):
     api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
 
     return api_key, api_secret, api_passphrase
+
 
 def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     url = f'https://api.kucoin.com/api/v1/prices'
@@ -230,17 +233,17 @@ def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()
 
+
 def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
     loss = 0
     profit = 0
     if (trader_balance > float(initial_balance)):
-        profit = ((float(initial_balance) - float(trader_balance)) /
-                  float(initial_balance)) * 100 * -1
+        profit = ((trader_balance - initial_balance) / initial_balance) * 100
     else:
-        loss = ((float(initial_balance) - float(trader_balance)) /
-                float(initial_balance)) * 100
+        loss = ((trader_balance - initial_balance) / initial_balance) * 100
 
     return ceil(loss), ceil(profit)
+
 
 def get_active_orders(order_type, api_key, api_secret, api_passphrase):
     now = int(time.time() * 1000)
@@ -250,7 +253,7 @@ def get_active_orders(order_type, api_key, api_secret, api_passphrase):
     elif order_type == 'f':
         url = f'https://api-futures.kucoin.com/api/v1/stopOrders'
         str_to_sign = str(now) + 'GET' + f'/api/v1/stopOrders'
-        
+
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
@@ -266,6 +269,7 @@ def get_active_orders(order_type, api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()['data']['items']
 
+
 def create_stop_order(order_type, api_key, api_secret, api_passphrase, **payload):
     payload['clientOid'] = randint(1, 10000) * 1000
     now = int(time.time() * 1000)
@@ -276,7 +280,7 @@ def create_stop_order(order_type, api_key, api_secret, api_passphrase, **payload
     else:
         url = 'https://api-futures.kucoin.com/api/v1/orders'
         str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
-    
+
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
@@ -291,6 +295,7 @@ def create_stop_order(order_type, api_key, api_secret, api_passphrase, **payload
     }
     response = requests.request('post', url, headers=headers, data=data_json)
     return response.json()
+
 
 def get_futures_completed_orders(api_key, api_secret, api_passphrase):
     now = int(time.time() * 1000)
@@ -311,6 +316,7 @@ def get_futures_completed_orders(api_key, api_secret, api_passphrase):
     response = requests.request('get', url, headers=headers)
     return response.json()['data']
 
+
 def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
     payload['clientOid'] = randint(1, 10000) * 1000
     now = int(time.time() * 1000)
@@ -321,7 +327,7 @@ def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
     else:
         url = 'https://api-futures.kucoin.com/api/v1/orders'
         str_to_sign = str(now) + 'POST' + '/api/v1/orders' + data_json
-    
+
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
@@ -337,6 +343,7 @@ def create_order(order_type, api_key, api_secret, api_passphrase, **payload):
     response = requests.request('post', url, headers=headers, data=data_json)
     return response.json()
 
+
 def cancel_all_orders(order_type, api_key, api_secret, api_passphrase):
     now = int(time.time() * 1000)
     if order_type == 's':
@@ -345,7 +352,7 @@ def cancel_all_orders(order_type, api_key, api_secret, api_passphrase):
     else:
         url = 'https://api-futures.kucoin.com/api/v1/orders'
         str_to_sign = str(now) + 'DELETE' + '/api/v1/orders'
-    
+
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
@@ -361,15 +368,17 @@ def cancel_all_orders(order_type, api_key, api_secret, api_passphrase):
     response = requests.request('delete', url, headers=headers)
     return response.json()
 
+
 def get_cryptocurrency_price(order_type, symbol, api_key, api_secret, api_passphrase):
     now = int(time.time() * 1000)
     if order_type == 's':
         url = f'https://api.kucoin.com/api/v1/market/orderbook/level1?symbol={symbol}'
-        str_to_sign = str(now) + 'GET' + f'/api/v1/market/orderbook/level1?symbol={symbol}'
+        str_to_sign = str(now) + 'GET' + \
+            f'/api/v1/market/orderbook/level1?symbol={symbol}'
     else:
         url = f'https://api-futures.kucoin.com/api/v1/ticker?symbol={symbol}'
         str_to_sign = str(now) + 'GET' + f'/api/v1/ticker?symbol={symbol}'
-    
+
     signature = base64.b64encode(
         hmac.new(api_secret.encode('utf-8'), str_to_sign.encode('utf-8'), hashlib.sha256).digest())
     passphrase = base64.b64encode(hmac.new(api_secret.encode(
