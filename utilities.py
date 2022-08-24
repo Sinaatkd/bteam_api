@@ -242,7 +242,7 @@ def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
     else:
         loss = ((trader_balance - initial_balance) / initial_balance) * 100
 
-    return ceil(loss), ceil(profit)
+    return float(str(loss)[:4]), float(str(profit)[:4])
 
 
 def get_active_orders(order_type, api_key, api_secret, api_passphrase):
