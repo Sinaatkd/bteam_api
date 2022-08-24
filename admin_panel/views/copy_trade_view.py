@@ -25,11 +25,12 @@ class BasketsList(ListView):
 class BasketEdit(UpdateView):
     model = Basket
     form_class = BasketForm
-    
+
     def dispatch(self, request, *args, **kwargs):
         if request.user.groups.filter(name='مدیر').exists():
             return super().dispatch(request, *args, **kwargs)
         raise Http404
+
 
 class CreateBasket(CreateView):
     model = Basket
@@ -50,7 +51,7 @@ class DetailBasket(DetailView):
         if request.user.groups.filter(name='مدیر').exists() or basket.trader == request.user:
             return super().dispatch(request, *args, **kwargs)
         raise Http404
-            
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['stage_form'] = StageForm(self.request.POST or None)
@@ -76,7 +77,7 @@ def set_tp_sl(request):
         order.target = target
         order.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
-    
+
 
 def delete_basket(request, pk):
     selected_basket = Basket.objects.get(pk=pk)
@@ -106,7 +107,7 @@ def apply_order_for_participants_thread(basket):
         order_created_time = str(order.get('createdAt'))
         five_minute_ago_timestamp = (
             datetime.now() - timedelta(minutes=5)).timestamp() * 1000
-        
+
         if float(order_created_time) > five_minute_ago_timestamp:
             paylaod = {
                 'symbol': order.get('symbol', None),
@@ -133,8 +134,11 @@ def apply_order_for_participants_thread(basket):
             for participant in basket.participants.all():
                 if not basket.blocked_users.filter(id=participant.id).exists():
                     participant_api = participant.user_kucoin_api
-                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
-                    create_stop_order(basket.orders_type, api_key, api_secret, api_passphrase, **paylaod)
+                    api_key, api_secret, api_passphrase = get_user_kucoin_apis(
+                        participant, basket)
+                    create_stop_order(basket.orders_type, api_key,
+                                      api_secret, api_passphrase, **paylaod)
+
 
 def apply_order_for_participants(request, pk):
     basket = Basket.objects.get(pk=pk)
@@ -145,6 +149,36 @@ def apply_order_for_participants(request, pk):
 
 
 def freeze_orders_thread(basket, stage=None, is_send_sms=False, is_cancel_orders=True, is_sell_orders=True):
+    # START apply for trader
+    trader_api_key = basket.trader_spot_api if basket.orders_type == 's' else basket.trader_futures_api
+    trader_api_secret = basket.trader_spot_secret if basket.orders_type == 's' else basket.trader_futures_secret
+    trader_api_passphrase = basket.trader_spot_passphrase if basket.orders_type == 's' else basket.trader_futures_passphrase
+    if is_cancel_orders:
+        cancel_all_orders(basket.orders_type, trader_api_key,
+                          trader_api_secret, trader_api_passphrase)
+    if is_sell_orders:
+        if basket.orders_type == 's':
+            try:
+                currencies = get_balance(
+                    trader_api_key, trader_api_secret, trader_api_passphrase)
+                currencies = list(
+                    filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
+                for currency in currencies:
+                    if float(currency.get('available')) > 0:
+                        available_balance = currency.get('available')
+                        paylaod = {
+                            'symbol': f'{currency.get("currency")}-USDT',
+                            'size': float(available_balance[:6]),
+                            'side': 'sell',
+                            'type': 'market',
+                        }
+                create_order('s', api_key, api_secret,
+                             api_passphrase, **paylaod)
+            except:
+                pass
+    # END apply for trader
+
+    # START apply for participants
     for participant in basket.participants.all():
         if is_send_sms:
             sms_vars = {
@@ -158,21 +192,29 @@ def freeze_orders_thread(basket, stage=None, is_send_sms=False, is_cancel_orders
         api_secret = participant_api.spot_secret if basket.orders_type == 's' else participant_api.futures_secret
         api_passphrase = participant_api.spot_passphrase if basket.orders_type == 's' else participant_api.futures_passphrase
         if is_cancel_orders:
-            cancel_all_orders(basket.orders_type, api_key, api_secret, api_passphrase)
+            cancel_all_orders(basket.orders_type, api_key,
+                              api_secret, api_passphrase)
         if is_sell_orders:
             if basket.orders_type == 's':
-                currencies = get_balance(api_key, api_secret, api_passphrase)
-                currencies = list(filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
-                for currency in currencies:
-                    if float(currency.get('available')) > 0:
-                        available_balance = currency.get('available')
-                        paylaod = {
-                            'symbol': f'{currency.get("currency")}-USDT',
-                            'size': float(available_balance[:6]),
-                            'side': 'sell',
-                            'type': 'market',
-                    }
-                create_order('s', api_key, api_secret, api_passphrase, **paylaod)
+                try:
+                    currencies = get_balance(api_key, api_secret, api_passphrase)
+                    currencies = list(
+                        filter(lambda x: x['type'] == 'trade' and x['currency'] != 'USDT', currencies))
+                    for currency in currencies:
+                        if float(currency.get('available')) > 0:
+                            available_balance = currency.get('available')
+                            paylaod = {
+                                'symbol': f'{currency.get("currency")}-USDT',
+                                'size': float(available_balance[:6]),
+                                'side': 'sell',
+                                'type': 'market',
+                            }
+                    create_order('s', api_key, api_secret,
+                                api_passphrase, **paylaod)
+                except:
+                    pass
+    # END apply for participants
+
 
 def set_stage(request, pk):
     stage = Stage.objects.get(pk=pk)
@@ -188,6 +230,7 @@ def set_stage(request, pk):
         thread.start()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
+
 def freeze_basket(request, pk):
     basket = Basket.objects.get(id=pk)
     basket.is_freeze = not basket.is_freeze
@@ -195,16 +238,18 @@ def freeze_basket(request, pk):
     if basket.is_freeze:
         thread = threading.Thread(
             target=freeze_orders_thread,
-            kwargs={'basket': basket,}
+            kwargs={'basket': basket, }
         )
         thread.start()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 def deactive_basket(request, pk):
     basket = Basket.objects.get(id=pk)
     basket.is_active = not basket.is_active
     basket.save()
     return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
 
 def cancel_orders(request, pk):
     basket = Basket.objects.get(id=pk)
