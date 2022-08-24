@@ -234,13 +234,13 @@ def get_all_currencies_prices(api_key, api_secret, api_passphrase):
     return response.json()
 
 
-def copy_trade_calculate_loss_and_profit(trader_balance, initial_balance):
+def copy_trade_calculate_loss_and_profit(user_balance, initial_balance):
     loss = 0
     profit = 0
-    if (trader_balance > float(initial_balance)):
-        profit = ((trader_balance - initial_balance) / initial_balance) * 100
+    if (user_balance > float(initial_balance)):
+        profit = ((user_balance - initial_balance) / initial_balance) * 100
     else:
-        loss = ((trader_balance - initial_balance) / initial_balance) * 100
+        loss = ((user_balance - initial_balance) / initial_balance) * 100
 
     return float(str(loss)[:4]), float(str(profit)[:4])
 

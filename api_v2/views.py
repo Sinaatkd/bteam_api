@@ -871,28 +871,19 @@ class GetBasketStatus(APIView):
                                       request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
         currencies = get_all_currencies_prices(request.user.user_kucoin_api.spot_api_key,
                                                request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
-        total_balance = 0
+        total_user_balance = 0
         for user_currency in user_currencies:
             coin_value = currencies.get('data').get(
                 user_currency.get('currency'))
-            total_balance += float(user_currency.get('balance')
+            total_user_balance += float(user_currency.get('balance')
                                    ) * float(coin_value)
 
-        trader_currencies = get_balance(user_active_basket_joined.trader_spot_api,
-                                        user_active_basket_joined.trader_spot_secret, user_active_basket_joined.trader_spot_passphrase)
-        trader_total_balance = 0
-        for trader_currency in trader_currencies:
-            coin_value = currencies.get('data').get(
-                trader_currency.get('currency'))
-            trader_total_balance += float(trader_currency.get('balance')
-                                          ) * float(coin_value)
-
         loss, profit = copy_trade_calculate_loss_and_profit(
-            trader_total_balance, user_active_basket_joined.initial_balance)
+            total_user_balance, user_active_basket_joined.initial_balance)
 
         res = {
             'orders_count': user_active_basket_joined.orders.all().count(),
-            'balance': total_balance,
+            'balance': total_user_balance,
             'stages': StageSerializer(user_active_basket_joined.stages.all(), many=True).data,
             'loss': loss,
             'profit': profit,
