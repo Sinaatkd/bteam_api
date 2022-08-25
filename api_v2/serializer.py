@@ -29,7 +29,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['full_name', 'phone_number',
-                  'national_code', 'from_city', 'password', 'device', 'is_foreigner', 'pk']
+                  'national_code', 'password', 'device', 'is_foreigner', 'pk']
 
     def create(self, validated_data):
         if validated_data.get('is_foreigner', False) == True:
