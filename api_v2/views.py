@@ -901,7 +901,7 @@ class CreateInvoice(APIView):
             'price_currency': 'usd',
             'success_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/check-invoice/{stage_id}/{username}',
             'cancel_url': f'https://bteamapp.iran.liara.run/api-v2/copy-trade/pay-cancel/',
-            'pay_currency': 'USDT',
+            'pay_currency': 'USDTTRC20',
         }
         headers = {
             'x-api-key': os.getenv('PAYMENT_GATEWAY_API_KEY'),
@@ -928,6 +928,8 @@ class SuccessInvoice(APIView):
 
 
 class CancelInvoice(APIView):
+    authentication_classes = []
+    permission_classes = []
     def get(self, request):
         return redirect('https://bteamroyal.com/pay-cancel')
 
