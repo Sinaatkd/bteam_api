@@ -43,7 +43,8 @@ urlpatterns = [
     path('device/remove-uuid/<device_id>/', login_required(remove_device_uuid), name='remove_device_uuid'),
     
     path('news/', login_required(NewsList.as_view()), name='news_list'),
-    path('news/add-new/', login_required(add_new), name='add_new'),
+    path('news/add-new/', login_required(CreateNews.as_view()), name='add_new'),
+    path('news/edit/<int:pk>/', login_required(UpdateNews.as_view()), name='edit_new'),
     path('news/delete/<news_id>/', login_required(delete_news), name='delete_news'),
     
     path('special-account-item/', login_required(SpecialAccountItemList.as_view()), name='special_account_item_list'),
