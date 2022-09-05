@@ -959,12 +959,12 @@ class GetNews(ListAPIView):
     def get_queryset(self):
         category_slug = self.kwargs.get('category_slug', 'all')
         if category_slug == 'all':
-            return News.objects.all().order_by('-id')
+            return News.objects.all().order_by('-id')[:4]
         
         selected_category = Category.objects.filter(slug=category_slug).first()
         if selected_category is None:
             return []
 
-        q = News.objects.filter(categories__in=[selected_category]).order_by('-id')
+        q = News.objects.filter(categories__in=[selected_category]).order_by('-id')[:4]
         return q
         
