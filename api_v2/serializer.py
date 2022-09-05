@@ -11,7 +11,7 @@ from django.utils.timezone import now
 from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
 from transaction.models import Transaction, DiscountCode
 from special_account_item.models import SpecialAccountItem
-from utilities import generate_token
+from utilities import diff_between_two_dates, generate_token
 
 
 class DeviceSerializer(serializers.ModelSerializer):
@@ -132,9 +132,32 @@ class UserLoginVerificationCodeSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(serializers.ModelSerializer):
+    categories = serializers.StringRelatedField(many=True)
+    updated_time = serializers.SerializerMethodField()
+
     class Meta:
         model = News
         fields = '__all__'
+
+    def get_updated_time(self, obj):
+        current = now()
+        updated_time = obj.updated_time
+        diff_dates = diff_between_two_dates(current, updated_time)
+        print(diff_dates)
+        if 0 < diff_dates.days < 30:
+            return f'{diff_dates.days} روز پیش'
+        elif 30 <= diff_dates.days < 365:
+            return f'{int(diff_dates.days / 30)} ماه پیش'
+        elif diff_dates.days >= 365:
+            return f'{int(diff_dates.days / 365)} سال پیش'
+
+        diff_dates_minute = int(diff_dates.seconds / 60)
+        if 0 <= diff_dates_minute <= 5:
+            return 'لحظاتی پیش'
+        elif 5 < diff_dates_minute < 60:
+            return f'{diff_dates_minute} دقیقه پیش'
+        elif diff_dates_minute >= 60:
+            return f'{int(diff_dates_minute/60)} ساعت پیش'
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:

@@ -43,8 +43,14 @@ urlpatterns = [
     path('device/remove-uuid/<device_id>/', login_required(remove_device_uuid), name='remove_device_uuid'),
     
     path('news/', login_required(NewsList.as_view()), name='news_list'),
-    path('news/add-new/', login_required(add_new), name='add_new'),
+    path('news/add-new/', login_required(CreateNews.as_view()), name='add_new'),
+    path('news/edit/<int:pk>/', login_required(UpdateNews.as_view()), name='edit_new'),
     path('news/delete/<news_id>/', login_required(delete_news), name='delete_news'),
+
+    path('news-categories', login_required(NewsCategoriesList.as_view()), name='news_categories_list'),
+    path('news-categories/add-new/', login_required(CreateNewsCategory.as_view()), name='add_news_category'),
+    path('news-categories/edit/<int:pk>/', login_required(UpdateNewsCategory.as_view()), name='edit_news_category'),
+    path('news-categories/delete/<news_category_id>/', login_required(delete_news_category), name='delete_news_category'),
     
     path('special-account-item/', login_required(SpecialAccountItemList.as_view()), name='special_account_item_list'),
     path('special-account-item/add-new/', login_required(add_special_account), name='special_account_new'),

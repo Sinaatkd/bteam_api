@@ -48,6 +48,7 @@ urlpatterns = [
 
     # news
     path('news-categories', GetAllNewsCategories.as_view()),
+    path('news/<category_slug>', GetNews.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),
