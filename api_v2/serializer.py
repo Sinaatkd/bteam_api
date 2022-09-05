@@ -1,3 +1,4 @@
+from dataclasses import fields
 import uuid
 from datetime import datetime
 from django.contrib.auth import authenticate
@@ -5,7 +6,7 @@ from rest_framework import serializers
 from account.models import Device, User, UserCashWithdrawal, UserGift, UserGiftLog, UserMessage, VerificationCode
 from banner.models import Banner
 from copy_trade.models import Basket, Stage
-from news.models import News
+from news.models import Category, News
 from django.utils.timezone import now
 from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
 from transaction.models import Transaction, DiscountCode
@@ -131,11 +132,16 @@ class UserLoginVerificationCodeSerializer(serializers.ModelSerializer):
 
 
 class NewsSerializer(serializers.ModelSerializer):
+    categories = serializers.StringRelatedField(many=True)
+
     class Meta:
         model = News
-        fields = ['title', 'short_description',
-                  'description', 'updated_time', 'img']
+        fields = '__all__'
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
 
 class SpecialAccountItemSerializer(serializers.ModelSerializer):
     class Meta:
