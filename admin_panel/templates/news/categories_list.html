@@ -47,7 +47,7 @@
                                         <td>{{ news.slug }}</td>
                                         <td>
                                             <a href="{% url 'delete_news' news.id %}" class="btn btn-danger m-2">حذف کردن</a>
-                                            <a href="{% url 'edit_new' news.id %}" class="btn btn-primary m-2">ویرایش کردن</a>
+                                            <a href="{% url 'edit_news_category' news.id %}" class="btn btn-primary m-2">ویرایش کردن</a>
                                         </td>
                                     </tr>
                                     {% endfor %}

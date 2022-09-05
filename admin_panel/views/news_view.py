@@ -68,8 +68,8 @@ class CreateNewsCategory(CreateView):
 
 class UpdateNewsCategory(UpdateView):
     model = Category
-    form_class = NewsForm
-    success_url = reverse_lazy('news_list')
+    form_class = NewsCategoryForm
+    success_url = reverse_lazy('news_categories_list')
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.groups.filter(name='دسترسی به اخبار').exists() or request.user.groups.filter(name='مدیر').exists():
