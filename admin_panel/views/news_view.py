@@ -76,3 +76,11 @@ class UpdateNewsCategory(UpdateView):
             return super().dispatch(request, *args, **kwargs)
         raise Http404
 
+
+
+@check_group('دسترسی به اخبار')
+def delete_news_category(request, news_category_id):
+    category = Category.objects.get(id=news_category_id)
+    category.delete()
+    return redirect(request.META.get('HTTP_REFERER'))
+

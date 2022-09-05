@@ -40,14 +40,14 @@
                                         <th>slug</th>
                                         <th>دستور</th>
                                     </tr>
-                                    {% for news in page_obj %}
+                                    {% for category in page_obj %}
                                     <tr>
-                                        <td>{{ news.id }}</td>
-                                        <td>{{ news.title }}</td>
-                                        <td>{{ news.slug }}</td>
+                                        <td>{{ category.id }}</td>
+                                        <td>{{ category.title }}</td>
+                                        <td>{{ category.slug }}</td>
                                         <td>
-                                            <a href="{% url 'delete_news' news.id %}" class="btn btn-danger m-2">حذف کردن</a>
-                                            <a href="{% url 'edit_news_category' news.id %}" class="btn btn-primary m-2">ویرایش کردن</a>
+                                            <a href="{% url 'delete_news_category' category.id %}" class="btn btn-danger m-2">حذف کردن</a>
+                                            <a href="{% url 'edit_news_category' category.id %}" class="btn btn-primary m-2">ویرایش کردن</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
