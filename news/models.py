@@ -12,7 +12,7 @@ def new_upload_img_path(instance, filepath):
 
 
 class Category(models.Model):
-    title = models.CharField(max_length=200)
+    title = models.CharField(max_length=200, verbose_name='عنوان')
     slug = models.SlugField()
 
     def __str__(self) -> str:

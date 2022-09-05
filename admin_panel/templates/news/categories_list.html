@@ -1,0 +1,109 @@
+{% extends 'shared/main_layout_admin.html' %}
+{% load static %}
+
+
+{% block content %}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-dark">دسته بندی ها</h1>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Main row -->
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <a href="{% url 'add_news_category'  %}" class="btn btn-primary">افزودن دسته جدید</a>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-primary">
+                            <h3 class="card-title">اخبار</h3>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover">
+                                <tbody>
+                                    <tr>
+                                        <th>شناسه</th>
+                                        <th>عنوان</th>
+                                        <th>slug</th>
+                                        <th>دستور</th>
+                                    </tr>
+                                    {% for news in page_obj %}
+                                    <tr>
+                                        <td>{{ news.id }}</td>
+                                        <td>{{ news.title }}</td>
+                                        <td>{{ news.slug }}</td>
+                                        <td>
+                                            <a href="{% url 'delete_news' news.id %}" class="btn btn-danger m-2">حذف کردن</a>
+                                            <a href="{% url 'edit_new' news.id %}" class="btn btn-primary m-2">ویرایش کردن</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="dataTables_paginate paging_simple_numbers m-2" id="example2_paginate">
+                                        <ul class="pagination">
+                                            {% if page_obj.has_previous %}
+                                            <li class="paginate_button page-item previous" id="example2_previous">
+                                                <a href="?page={{page_obj.previous_page_number}}"
+                                                    aria-controls="example2" data-dt-idx="0" tabindex="0"
+                                                    class="page-link">قبلی</a>
+                                            </li>
+                                            {% endif %}
+
+                                            {% for page_num in paginator.page_range %}
+
+                                            {% if page_obj.number == page_num and not page_obj.has_next and not page_obj.has_previous %}
+                                            <p>صفحه بعدی وجود ندارد</p>
+                                            {% else %}
+                                            {% if page_obj.number == page_num %}
+                                            <li class="paginate_button page-item active">
+                                                <a aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+
+                                            {% else %}
+                                            <li class="paginate_button page-item"><a href="?page={{page_num}}"
+                                                    aria-controls="example2" data-dt-idx="1" tabindex="0"
+                                                    class="page-link">{{ page_num }}</a>
+                                            </li>
+                                            {% endif %}
+                                            {% endif %}
+                                            {% endfor %}
+
+                                            {% if page_obj.has_next %}
+                                            <li class="paginate_button page-item next" id="example2_next"><a
+                                                    href="?page={{page_obj.next_page_number}}" aria-controls="example2"
+                                                    data-dt-idx="7" tabindex="0" class="page-link">بعدی</a></li>
+                                            {% endif %}
+
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+                </div>
+            </div>
+            <!-- /.row (main row) -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+</div>
+{% endblock %}

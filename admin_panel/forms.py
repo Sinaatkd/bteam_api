@@ -1,7 +1,7 @@
 from django import forms
 
 from copy_trade.models import Basket, Stage
-from news.models import News
+from news.models import Category, News
 
 class EditUserForm(forms.Form):
     username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'نام کاربری'}))
@@ -44,3 +44,15 @@ class NewsForm(forms.ModelForm):
     class Meta:
         model = News
         exclude = ('is_active',)
+
+    
+
+class NewsCategoryForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields:
+            self.fields[field].widget.attrs.update({'class': 'form-control'})
+    
+    class Meta:
+        model = Category
+        fields = '__all__'
