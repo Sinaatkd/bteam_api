@@ -946,3 +946,8 @@ class LeftFromBasket(APIView):
         if basket is not None:
             basket.participants.remove(request.user)
         return Response({'status': 'ok'})
+
+
+class GetAllNewsCategories(ListAPIView):
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer

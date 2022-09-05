@@ -46,6 +46,9 @@ urlpatterns = [
     path('copy-trade/pay-cancel/', CancelInvoice.as_view()),
     path('copy-trade/left-basket/', LeftFromBasket.as_view()),
 
+    # news
+    path('news-categories', GetAllNewsCategories.as_view()),
+
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),
     path('cron/check-user-special-account/', CheckUserSpecialAccount.as_view()),
