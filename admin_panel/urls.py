@@ -2,7 +2,7 @@ from django.urls import path
 
 from django.contrib.auth.decorators import login_required
 
-from admin_panel.views.story_views import StoryList
+from admin_panel.views.story_views import *
 from .views.auth_view import admin_login
 from .views.cash_withdrawal_view import *
 from .views.financial_view import *
@@ -102,6 +102,8 @@ urlpatterns = [
     path('baskets/set-tp-sl', set_tp_sl, name='set_tp_sl'),
     
     path('stories', login_required(StoryList.as_view()), name='stories_list'),
+    path('stories/new', login_required(CreateStory.as_view()), name='create_story'),
+    path('stories/delete-story/<int:pk>', login_required(delete_story), name='delete_story'),
     
     path('login', admin_login, name='admin_login'),
 

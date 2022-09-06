@@ -20,7 +20,7 @@
             <!-- Main row -->
             <div class="row">
                 <div class="col-6">
-                    <a href="{% url 'create_basket'  %}" class="btn btn-primary">افزودن استوری</a>
+                    <a href="{% url 'create_story'  %}" class="btn btn-primary">افزودن استوری</a>
                 </div>
                 <div class="col-12 mt-2">
                     <div class="card">
@@ -47,7 +47,7 @@
                                             <a target="_blank" class="btn btn-primary" href="{{ story.story_file.url }}">برای مشاهده کلیک کنید</a>
                                         </td>
                                         <td>
-                                            <a href="{% url 'detail_basket' story.id %}" class="btn btn-danger">حذف</a>
+                                            <a href="{% url 'delete_story' story.id %}" class="btn btn-danger">حذف</a>
                                         </td>
                                     </tr>
                                     {% endfor %}
