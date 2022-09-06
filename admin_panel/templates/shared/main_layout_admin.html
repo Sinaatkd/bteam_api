@@ -283,6 +283,14 @@
                   </ul>
                 </li>
                 {% endif %}
+                {% if request.user|has_group:'استوری' %}
+                <li class="nav-item">
+                  <a href="{% url 'stories_list' %}" class="nav-link">
+                    <i class="nav-icon fa fa-plus-square-o"></i>
+                    <p>استوری</p>
+                  </a>
+                </li>
+                {% endif %}
               </ul>
             </nav>
             <!-- /.sidebar-menu -->
