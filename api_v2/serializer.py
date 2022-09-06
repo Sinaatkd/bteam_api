@@ -143,7 +143,6 @@ class NewsSerializer(serializers.ModelSerializer):
         current = now()
         updated_time = obj.updated_time
         diff_dates = diff_between_two_dates(current, updated_time)
-        print(diff_dates)
         if 0 < diff_dates.days < 30:
             return f'{diff_dates.days} روز پیش'
         elif 30 <= diff_dates.days < 365:

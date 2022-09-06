@@ -433,7 +433,7 @@ class GetThreeLastBanners(APIView):
 
     def get(self, request):
         three_last_banners = Banner.objects.all().order_by('-id')[:3]
-        banner_serializer = BannerSerializer(three_last_banners, many=True)
+        banner_serializer = BannerSerializer(three_last_banners, many=True, context={'request': request})
         return Response(banner_serializer.data, status_code.HTTP_200_OK)
 
 
@@ -967,4 +967,4 @@ class GetNews(ListAPIView):
 
         q = News.objects.filter(categories__in=[selected_category]).order_by('-id')[:4]
         return q
-        
+

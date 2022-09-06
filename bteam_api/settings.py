@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'transaction',
     'banner',
     'copy_trade',
+    'story',
     'admin_panel',
 
     # packages
