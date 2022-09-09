@@ -69,4 +69,4 @@ class StoryForm(forms.ModelForm):
     
     class Meta:
         model = Story
-        exclude = ['visitors', 'user']
+        fields = ['story_file']
