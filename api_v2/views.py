@@ -948,6 +948,7 @@ class LeftFromBasket(APIView):
         return Response({'status': 'ok'})
 
 
+
 class GetAllNewsCategories(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -968,3 +969,34 @@ class GetNews(ListAPIView):
         q = News.objects.filter(categories__in=[selected_category]).order_by('-id')[:4]
         return q
 
+
+class UserHasStoryList(ListAPIView):
+    serializer_class = UserStorySerializer
+
+    def get_queryset(self):
+        users = []
+        for user in User.objects.all():
+            user_stories = Story.objects.filter(user=user, expire_time__gt=now())
+            if user_stories.count() > 0:
+                users.append(user)
+        return users
+
+
+    def get_serializer_context(self):
+        return {'request': self.request}
+
+
+class GetUserStories(ListAPIView):
+    serializer_class = StorySerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        user_stories = Story.objects.filter(user_id=user_id, expire_time__gt=now())
+        return user_stories
+
+class SetStoryVisitors(APIView):
+    def get(self, request, story_id):
+        story = Story.objects.get(id=story_id)
+        story.visitors.add(request.user)
+        return Response({'message': 'ok', 'code': 200})
+        

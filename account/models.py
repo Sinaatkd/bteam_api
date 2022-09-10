@@ -33,6 +33,7 @@ class UserKucoinAPI(models.Model):
 
 
 class User(AbstractUser):
+    user_image = models.ImageField(upload_to='user-images', null=True, blank=True)
     full_name = models.CharField(max_length=120)
     phone_number = models.PositiveBigIntegerField(
         unique=True, null=True, blank=True)

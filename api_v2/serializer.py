@@ -1,4 +1,5 @@
 from dataclasses import fields
+from urllib import request
 import uuid
 from datetime import datetime
 from django.contrib.auth import authenticate
@@ -9,6 +10,7 @@ from copy_trade.models import Basket, Stage
 from news.models import Category, News
 from django.utils.timezone import now
 from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
+from story.models import Story
 from transaction.models import Transaction, DiscountCode
 from special_account_item.models import SpecialAccountItem
 from utilities import diff_between_two_dates, generate_token
@@ -292,3 +294,27 @@ class BasketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Basket
         fields = '__all__'
+
+class UserStorySerializer(serializers.ModelSerializer):
+    is_all_story_visited = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'full_name', 'is_all_story_visited', 'user_image']
+
+    def get_is_all_story_visited(self, obj):
+        user = obj
+        last_user_story  = Story.objects.filter(user=user, expire_time__gt=now()).last()
+        return last_user_story.visitors.filter(id=self.context['request'].user.id).first() is not None
+
+class StorySerializer(serializers.ModelSerializer):
+    is_visited = serializers.SerializerMethodField()
+    user = UserStorySerializer()
+
+    class Meta:
+        model = Story
+        exclude = ['visitors']
+
+    def get_is_visited(self, obj):
+        user = self.context['request'].user
+        return obj.visitors.filter(id=user.id).first() is not None

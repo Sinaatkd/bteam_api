@@ -50,6 +50,12 @@ urlpatterns = [
     path('news-categories', GetAllNewsCategories.as_view()),
     path('news/<category_slug>', GetNews.as_view()),
 
+    # story
+    path('stories', UserHasStoryList.as_view()),
+    path('stories/<user_id>', GetUserStories.as_view()),
+    path('stories/<story_id>/set-visit', SetStoryVisitors.as_view()),
+
+
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),
     path('cron/check-user-special-account/', CheckUserSpecialAccount.as_view()),
