@@ -12,6 +12,7 @@ class NFTAlarm(models.Model):
     filter_mode = models.CharField(choices=(('24h', '24h'), ('7d', '7d'), ('30d', '30d'), ('all', 'all')), max_length=3)
     nft_link = models.URLField()
     expire_time = models.DateTimeField(default=now() + timedelta(days=1))
+    created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f'{self.collection_name} - {self.nft_name}'
