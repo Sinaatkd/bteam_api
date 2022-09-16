@@ -57,6 +57,7 @@ urlpatterns = [
 
     # nft
     path('nft/alarms', GetNFTAlarmsList.as_view()),
+    path('nft/create-alarm', CreateNFTAlarm.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),

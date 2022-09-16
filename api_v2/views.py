@@ -9,6 +9,7 @@ from datetime import timedelta, datetime
 from django.utils.timezone import now
 from django.core.files.base import ContentFile
 from django.db.models import Sum
+from rest_framework.decorators import permission_classes
 from rest_framework.generics import CreateAPIView
 from banner.models import Banner
 from copy_trade.models import Basket, Order
@@ -21,7 +22,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .permissions import IsAccountOwner, IsTransactionOwner
+from .permissions import IsAccountOwner, IsTransactionOwner, IsAdmin
 from .serializer import *
 from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserKucoinAPI, UserMessage, VerificationCode
 from special_account_item.models import SpecialAccountItem
@@ -1029,3 +1030,9 @@ class GetNFTAlarmsList(ListAPIView):
     queryset = NFTAlarm.objects.all()
     serializer_class = NFTAlarmSerializer
     filterset_fields = ['filter_mode']
+
+
+class CreateNFTAlarm(CreateAPIView):
+    queryset = NFTAlarm.objects.all()
+    serializer_class = NFTAlarmSerializer
+    permission_classes = [IsAdmin]
