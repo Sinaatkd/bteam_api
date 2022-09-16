@@ -57,7 +57,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
-    'channels',
 ]
 
 MIDDLEWARE = [
@@ -90,12 +89,13 @@ TEMPLATES = [
     },
 ]
 
-ASGI_APPLICATION = "bteam_api.asgi.application"
+# ASGI_APPLICATION = "bteam_api.asgi.application"
+WSGI_APPLICATION = "bteam_api.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-if (not DEBUG):
+if not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -110,26 +110,11 @@ if (not DEBUG):
         },
     }
 
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels_redis.core.RedisChannelLayer",
-            'CONFIG': {
-                'hosts': [f'redis://root:{os.getenv("REDIS_PASSWORD")}@{os.getenv("REDIS_HOST")}:{os.getenv("REDIS_PORT")}/0'],
-            },
-        },
-    }
-
 else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
-    CHANNEL_LAYERS = {
-        "default": {
-            "BACKEND": "channels.layers.InMemoryChannelLayer"
         }
     }
 
