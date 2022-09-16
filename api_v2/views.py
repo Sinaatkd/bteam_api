@@ -14,7 +14,6 @@ from banner.models import Banner
 from copy_trade.models import Basket, Order
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
-
 from utilities import *
 import rest_framework.status as status_code
 from rest_framework.permissions import AllowAny
@@ -187,12 +186,14 @@ class CancelTransactionAPI(APIView):
 class CheckDiscountCodeAPI(APIView):
     def post(self, request):
         check_discount_code_serializer = CheckDiscountCodeSerializer(
-            data=request.data,  context={'request': request})
+            data=request.data, context={'request': request})
         if check_discount_code_serializer.is_valid():
             amount = float(request.data.get('amount', None))
             request.discount_code.use_by.add(request.user)
             new_amount = (request.discount_code.percentage * int(amount)) / 100
-            return Response({'status': 'ok', 'discount_code_id': request.discount_code.id, 'new_amount': amount - new_amount}, status=status_code.HTTP_200_OK)
+            return Response(
+                {'status': 'ok', 'discount_code_id': request.discount_code.id, 'new_amount': amount - new_amount},
+                status=status_code.HTTP_200_OK)
         return Response(check_discount_code_serializer.errors, status=status_code.HTTP_400_BAD_REQUEST)
 
 
@@ -213,7 +214,7 @@ class SendReceiptImageAPI(RetrieveUpdateAPIView):
         instance.last_updated_time = now()
         instance.save()
         send_sms('hkdf6b6rwr', self.request.user.phone_number, {
-                 "name": self.request.user.full_name.split()[0]})
+            "name": self.request.user.full_name.split()[0]})
 
         return Response({'message': 'ok'}, status=status_code.HTTP_200_OK)
 
@@ -276,7 +277,7 @@ class GetAllDeactiveSignals(APIView):
             futures_sum = 0
 
         deactive_signal_count = deactives_futures_signals.count() + \
-            deactives_spot_signals.count()
+                                deactives_spot_signals.count()
         if deactive_signal_count == 0:
             deactive_signal_count = 1
         profit_value = ceil((futures_sum + spot_sum))
@@ -287,7 +288,8 @@ class GetAllDeactiveSignals(APIView):
             'voided_count': voided_count,
             'risk_free_count': risk_free_count,
             'profit_value': profit_value,
-            'signals': FuturesSignalSerializer(deactives_futures_signals, many=True).data + SpotSignalSerializer(deactives_spot_signals, many=True).data
+            'signals': FuturesSignalSerializer(deactives_futures_signals, many=True).data + SpotSignalSerializer(
+                deactives_spot_signals, many=True).data
         }
 
         return Response(res)
@@ -315,7 +317,8 @@ class DeactiveSpotSignal(APIView):
                     signal.is_active = False
                     signal.status = status
                     signal.profit_of_signal_amount = (
-                        (signal.entry - last_touched_target.amount) / signal.entry) * 100
+                                                             (
+                                                                         signal.entry - last_touched_target.amount) / signal.entry) * 100
                     content = 'فول تارگت'
                     send_notification(f'سیگنال {signal.coin_symbol}', content)
                     send_notification(
@@ -342,7 +345,8 @@ class DeactiveFuturesSignal(ListAPIView):
                 signal.is_active = False
                 signal.status = status
                 signal.profit_of_signal_amount = abs((
-                    ((signal.entry - last_touched_target.amount) / signal.entry) * 100) * signal.leverage)
+                                                             ((
+                                                                          signal.entry - last_touched_target.amount) / signal.entry) * 100) * signal.leverage)
                 send_notification(
                     f'سیگنال {signal.coin_symbol}', status)
             send_notification(f'سیگنال {signal.coin_symbol}', 'بسته شد')
@@ -497,8 +501,10 @@ class UseGiftAPI(APIView):
                         user_transaction.validity_rate += 15
                         user_transaction.save()
                     else:
-                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده", validity_rate=15, user=request.user,
-                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(), special_item=SpecialAccountItem.objects.first())
+                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده",
+                                                   validity_rate=15, user=request.user,
+                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(),
+                                                   special_item=SpecialAccountItem.objects.first())
                     UserGiftLog.objects.create(
                         title='اشتراک رایگان', content="15 روزه", user=request.user)
                     gift_detail = '15 روز اشتراک رایگان'
@@ -518,8 +524,10 @@ class UseGiftAPI(APIView):
                         user_transaction.validity_rate += 10
                         user_transaction.save()
                     else:
-                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده", validity_rate=10, user=request.user,
-                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(), special_item=SpecialAccountItem.objects.first())
+                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده",
+                                                   validity_rate=10, user=request.user,
+                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(),
+                                                   special_item=SpecialAccountItem.objects.first())
                     UserGiftLog.objects.create(
                         title='اشتراک رایگان', content="10 روزه", user=request.user)
                     gift_detail = '10 روز اشتراک رایگان'
@@ -539,8 +547,10 @@ class UseGiftAPI(APIView):
                         user_transaction.validity_rate += 30
                         user_transaction.save()
                     else:
-                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده", validity_rate=30, user=request.user,
-                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(), special_item=SpecialAccountItem.objects.first())
+                        Transaction.objects.create(payment_mode="offline", amount=0, transaction_status="تایید شده",
+                                                   validity_rate=30, user=request.user,
+                                                   is_send_receipt=True, is_confirmation=True, date_of_approval=now(),
+                                                   special_item=SpecialAccountItem.objects.first())
                     UserGiftLog.objects.create(
                         title='اشتراک رایگان', content="1 ماه", user=request.user)
                     gift_detail = '1 ماه اشتراک رایگان'
@@ -554,13 +564,15 @@ class UseGiftAPI(APIView):
                         title='افزایش اعتبار', content=f'{user_share_amount} تومان', user=request.user)
                     last_black_b_card = UserGift.objects.filter(
                         gift_type='black-b', user=request.user, is_active=True).last()
-                    send_sms('gtc2lktr0mvn6o6', request.user.phone_number, {'cart': str(last_black_b_card.code), 'price': str(
-                        user_share_amount), 'date': get_now_jalali_date(), 'mojodi': str(request.user.wallet)})
+                    send_sms('gtc2lktr0mvn6o6', request.user.phone_number,
+                             {'cart': str(last_black_b_card.code), 'price': str(
+                                 user_share_amount), 'date': get_now_jalali_date(), 'mojodi': str(request.user.wallet)})
 
             selected_user_gift.is_active = False
             selected_user_gift.save()
 
-            return Response({'message': 'ok', 'info': {'gift_type': 'red-b', 'gift_item': gift_item, 'discount': code, 'gift_detail': gift_detail}})
+            return Response({'message': 'ok', 'info': {'gift_type': 'red-b', 'gift_item': gift_item, 'discount': code,
+                                                       'gift_detail': gift_detail}})
         return Response({'message': 'card not found'}, status=status_code.HTTP_404_NOT_FOUND)
 
 
@@ -634,19 +646,19 @@ class CheckUserSpecialAccount(APIView):
                 transaction.date_of_approval + timedelta(transaction.validity_rate + 1), now()).days
             if result == 10:
                 send_sms('np5tviaoag', str(transaction.user.phone_number), {
-                         'date_cnt': str(result)})
+                    'date_cnt': str(result)})
             elif result == 5:
                 send_sms('np5tviaoag', str(transaction.user.phone_number), {
-                         'date_cnt': str(result)})
+                    'date_cnt': str(result)})
             elif result == 3:
                 send_sms('np5tviaoag', str(transaction.user.phone_number), {
-                         'date_cnt': str(result)})
+                    'date_cnt': str(result)})
             elif result == 1:
                 send_sms('np5tviaoag', str(transaction.user.phone_number), {
-                         'date_cnt': str(result)})
+                    'date_cnt': str(result)})
             elif result <= 0:
                 send_sms('3egblee8ys', str(transaction.user.phone_number), {
-                         'name': transaction.user.full_name.split()[0]})
+                    'name': transaction.user.full_name.split()[0]})
                 transaction.delete()
         return Response({'message': 'ok'})
 
@@ -667,13 +679,15 @@ class CheckCopyTradeStopLossTarget(APIView):
                 trader_api = basket.trader_futures_api
                 trader_secret = basket.trader_futures_secret
                 trader_passphrase = basket.trader_futures_passphrase
-            current_price = get_cryptocurrency_price(basket.orders_type, order.symbol, trader_api, trader_secret, trader_passphrase)
+            current_price = get_cryptocurrency_price(basket.orders_type, order.symbol, trader_api, trader_secret,
+                                                     trader_passphrase)
             current_price = float(current_price)
-            
+
             if (current_price < order.stop_loss or current_price > order.target) and basket.orders_type == 's':
                 try:
                     # START apply for trader
-                    currency_available_size = get_user_currency_balance(trader_api, trader_secret, trader_passphrase, order.symbol)
+                    currency_available_size = get_user_currency_balance(trader_api, trader_secret, trader_passphrase,
+                                                                        order.symbol)
                     payload = {
                         'symbol': order.symbol,
                         'size': float(currency_available_size[:6]),
@@ -688,7 +702,8 @@ class CheckCopyTradeStopLossTarget(APIView):
                 for participant in basket.participants.all():
                     try:
                         api_key, api_secret, api_passphrase = get_user_kucoin_apis(participant, basket)
-                        currency_available_size = get_user_currency_balance(api_key, api_secret, api_passphrase, order.symbol)
+                        currency_available_size = get_user_currency_balance(api_key, api_secret, api_passphrase,
+                                                                            order.symbol)
                         payload = {
                             'symbol': order.symbol,
                             'size': float(currency_available_size[:6]),
@@ -701,10 +716,11 @@ class CheckCopyTradeStopLossTarget(APIView):
                 # END apply for participants
                 order.delete()
 
-            elif (current_price > order.stop_loss or current_price < order.target) and order.side == 'sell' and basket.orders_type == 'f':
+            elif (
+                    current_price > order.stop_loss or current_price < order.target) and order.side == 'sell' and basket.orders_type == 'f':
                 side = 'buy'
                 try:
-                # START apply for trader
+                    # START apply for trader
                     payload = {
                         'symbol': order.symbol,
                         'size': order.size,
@@ -727,10 +743,11 @@ class CheckCopyTradeStopLossTarget(APIView):
                     create_order('f', api_key, api_secret, api_passphrase, **payload)
                 # END apply for participants
                 order.delete()
-            elif (current_price < order.stop_loss or current_price > order.target) and order.side == 'buy' and basket.orders_type == 'f':
+            elif (
+                    current_price < order.stop_loss or current_price > order.target) and order.side == 'buy' and basket.orders_type == 'f':
                 side = 'sell'
                 try:
-                # START apply for trader
+                    # START apply for trader
                     payload = {
                         'symbol': order.symbol,
                         'size': order.size,
@@ -762,7 +779,7 @@ class CheckCopyTradeStopLossTarget(APIView):
 class CheckCopyTradeBasketStages(APIView):
     authentication_classes = []
     permission_classes = []
-    
+
     def get(self, request):
         # Remove the basket from freezing after 24 hours
         baskets = Basket.objects.all()
@@ -839,8 +856,10 @@ class CheckUserAPIsKucoin(APIView):
         futures_response = requests.request('get', url, headers=headers)
 
         if futures_response.status_code == 200 and spot_response.status_code == 200:
-            user_kocoin_api = UserKucoinAPI.objects.create(futures_api_key=futuresAPIKey, futures_secret=futuresSecret, futures_passphrase=futuresPassphrase,
-                                                           spot_api_key=spotAPIKey, spot_secret=spotSecret, spot_passphrase=spotPassphrase)
+            user_kocoin_api = UserKucoinAPI.objects.create(futures_api_key=futuresAPIKey, futures_secret=futuresSecret,
+                                                           futures_passphrase=futuresPassphrase,
+                                                           spot_api_key=spotAPIKey, spot_secret=spotSecret,
+                                                           spot_passphrase=spotPassphrase)
             if request.user.user_kucoin_api is not None:
                 request.user.user_kucoin_api.delete()
             request.user.user_kucoin_api = user_kocoin_api
@@ -859,8 +878,10 @@ class joinToBasket(APIView):
                 selected_basket.participants.add(request.user)
                 selected_basket.save()
                 return Response({'status': 'ok', 'message': 'شما عضو سبد شدید'}, status=status_code.HTTP_200_OK)
-            return Response({'status': 'error', 'message': 'موجودی شما کافی نیست'}, status=status_code.HTTP_400_BAD_REQUEST)
-        return Response({'status': 'error', 'message': 'شما هم اکنون سبد فعال دارید'}, status=status_code.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'error', 'message': 'موجودی شما کافی نیست'},
+                            status=status_code.HTTP_400_BAD_REQUEST)
+        return Response({'status': 'error', 'message': 'شما هم اکنون سبد فعال دارید'},
+                        status=status_code.HTTP_400_BAD_REQUEST)
 
 
 class GetBasketStatus(APIView):
@@ -868,15 +889,17 @@ class GetBasketStatus(APIView):
         user_active_basket_joined = Basket.objects.filter(
             participants__in=[request.user.id], is_active=True).first()
         user_currencies = get_balance(request.user.user_kucoin_api.spot_api_key,
-                                      request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+                                      request.user.user_kucoin_api.spot_secret,
+                                      request.user.user_kucoin_api.spot_passphrase)
         currencies = get_all_currencies_prices(request.user.user_kucoin_api.spot_api_key,
-                                               request.user.user_kucoin_api.spot_secret, request.user.user_kucoin_api.spot_passphrase)
+                                               request.user.user_kucoin_api.spot_secret,
+                                               request.user.user_kucoin_api.spot_passphrase)
         total_user_balance = 0
         for user_currency in user_currencies:
             coin_value = currencies.get('data').get(
                 user_currency.get('currency'))
             total_user_balance += float(user_currency.get('balance')
-                                   ) * float(coin_value)
+                                        ) * float(coin_value)
 
         loss, profit = copy_trade_calculate_loss_and_profit(
             total_user_balance, user_active_basket_joined.initial_balance)
@@ -930,6 +953,7 @@ class SuccessInvoice(APIView):
 class CancelInvoice(APIView):
     authentication_classes = []
     permission_classes = []
+
     def get(self, request):
         return redirect('https://bteamroyal.com/pay-cancel')
 
@@ -948,7 +972,6 @@ class LeftFromBasket(APIView):
         return Response({'status': 'ok'})
 
 
-
 class GetAllNewsCategories(ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -956,12 +979,12 @@ class GetAllNewsCategories(ListAPIView):
 
 class GetNews(ListAPIView):
     serializer_class = NewsSerializer
-    
+
     def get_queryset(self):
         category_slug = self.kwargs.get('category_slug', 'all')
         if category_slug == 'all':
             return News.objects.all().order_by('-id')[:4]
-        
+
         selected_category = Category.objects.filter(slug=category_slug).first()
         if selected_category is None:
             return []
@@ -981,7 +1004,6 @@ class UserHasStoryList(ListAPIView):
                 users.append(user)
         return users
 
-
     def get_serializer_context(self):
         return {'request': self.request}
 
@@ -994,9 +1016,11 @@ class GetUserStories(ListAPIView):
         user_stories = Story.objects.filter(user_id=user_id, expire_time__gt=now())
         return user_stories
 
+
 class SetStoryVisitors(APIView):
     def get(self, request, story_id):
         story = Story.objects.get(id=story_id)
         story.visitors.add(request.user)
         return Response({'message': 'ok', 'code': 200})
-        
+
+# class GetAlarms

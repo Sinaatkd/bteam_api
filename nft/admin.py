@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from nft.models import NFTAlarm
+
+admin.site.register(NFTAlarm)
