@@ -9,6 +9,8 @@ from banner.models import Banner
 from copy_trade.models import Basket, Stage
 from news.models import Category, News
 from django.utils.timezone import now
+
+from nft.models import NFTAlarm
 from signals.models import FuturesSignal, SignalAlarm, SignalNews, SpotSignal, Target
 from story.models import Story
 from transaction.models import Transaction, DiscountCode
@@ -158,12 +160,14 @@ class NewsSerializer(serializers.ModelSerializer):
         elif 5 < diff_dates_minute < 60:
             return f'{diff_dates_minute} دقیقه پیش'
         elif diff_dates_minute >= 60:
-            return f'{int(diff_dates_minute/60)} ساعت پیش'
+            return f'{int(diff_dates_minute / 60)} ساعت پیش'
+
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = '__all__'
+
 
 class SpecialAccountItemSerializer(serializers.ModelSerializer):
     class Meta:
@@ -176,7 +180,8 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'is_active', 'full_name', 'phone_number', 'national_code', 'from_city', 'amount_of_capital',
                   'familiarity_with_digital_currencies', 'get_to_know_us', 'id_card', 'face', 'is_full_authentication',
-                  'is_receive_signal_notifications', 'is_receive_news_notifications', 'father_name', 'date_of_birth', 'place_of_issue']
+                  'is_receive_signal_notifications', 'is_receive_news_notifications', 'father_name', 'date_of_birth',
+                  'place_of_issue']
 
 
 class DiscountCodeSerializer(serializers.ModelSerializer):
@@ -283,17 +288,21 @@ class UserCashWithdrawalSerializer(serializers.ModelSerializer):
         model = UserCashWithdrawal
         fields = '__all__'
 
+
 class StageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stage
         fields = '__all__'
 
+
 class BasketSerializer(serializers.ModelSerializer):
     stages = StageSerializer(many=True)
     trader = serializers.StringRelatedField()
+
     class Meta:
         model = Basket
         fields = '__all__'
+
 
 class UserStorySerializer(serializers.ModelSerializer):
     is_all_story_visited = serializers.SerializerMethodField()
@@ -304,8 +313,9 @@ class UserStorySerializer(serializers.ModelSerializer):
 
     def get_is_all_story_visited(self, obj):
         user = obj
-        last_user_story  = Story.objects.filter(user=user, expire_time__gt=now()).last()
+        last_user_story = Story.objects.filter(user=user, expire_time__gt=now()).last()
         return last_user_story.visitors.filter(id=self.context['request'].user.id).first() is not None
+
 
 class StorySerializer(serializers.ModelSerializer):
     is_visited = serializers.SerializerMethodField()
@@ -318,3 +328,9 @@ class StorySerializer(serializers.ModelSerializer):
     def get_is_visited(self, obj):
         user = self.context['request'].user
         return obj.visitors.filter(id=user.id).first() is not None
+
+
+class NFTAlarmSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NFTAlarm
+        exclude = ['created_time']

@@ -55,6 +55,8 @@ urlpatterns = [
     path('stories/<user_id>', GetUserStories.as_view()),
     path('stories/<story_id>/set-visit', SetStoryVisitors.as_view()),
 
+    # nft
+    path('nft/alarms', GetNFTAlarmsList.as_view()),
 
     # cron
     path('cron/check-user-transaction-status/', CheckUserTransactionStatus.as_view()),

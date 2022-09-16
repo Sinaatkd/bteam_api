@@ -12,6 +12,7 @@ from django.db.models import Sum
 from rest_framework.generics import CreateAPIView
 from banner.models import Banner
 from copy_trade.models import Basket, Order
+from nft.models import NFTAlarm
 from signals.models import FuturesSignal, SignalAlarm, SpotSignal, Target
 
 from utilities import *
@@ -318,7 +319,7 @@ class DeactiveSpotSignal(APIView):
                     signal.status = status
                     signal.profit_of_signal_amount = (
                                                              (
-                                                                         signal.entry - last_touched_target.amount) / signal.entry) * 100
+                                                                     signal.entry - last_touched_target.amount) / signal.entry) * 100
                     content = 'فول تارگت'
                     send_notification(f'سیگنال {signal.coin_symbol}', content)
                     send_notification(
@@ -346,7 +347,7 @@ class DeactiveFuturesSignal(ListAPIView):
                 signal.status = status
                 signal.profit_of_signal_amount = abs((
                                                              ((
-                                                                          signal.entry - last_touched_target.amount) / signal.entry) * 100) * signal.leverage)
+                                                                      signal.entry - last_touched_target.amount) / signal.entry) * 100) * signal.leverage)
                 send_notification(
                     f'سیگنال {signal.coin_symbol}', status)
             send_notification(f'سیگنال {signal.coin_symbol}', 'بسته شد')
@@ -1023,4 +1024,8 @@ class SetStoryVisitors(APIView):
         story.visitors.add(request.user)
         return Response({'message': 'ok', 'code': 200})
 
-# class GetAlarms
+
+class GetNFTAlarmsList(ListAPIView):
+    queryset = NFTAlarm.objects.all()
+    serializer_class = NFTAlarmSerializer
+    filterset_fields = ['filter_mode']
