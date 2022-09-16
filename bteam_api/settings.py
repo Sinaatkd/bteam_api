@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'banner',
     'copy_trade',
     'story',
+    'nft',
     'admin_panel',
 
     # packages
