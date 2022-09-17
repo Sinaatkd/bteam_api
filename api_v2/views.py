@@ -1027,7 +1027,7 @@ class SetStoryVisitors(APIView):
 
 
 class GetNFTAlarmsList(ListAPIView):
-    queryset = NFTAlarm.objects.all()
+    queryset = NFTAlarm.objects.filter(expire_time__gt=now())
     serializer_class = NFTAlarmSerializer
     filterset_fields = ['filter_mode']
 

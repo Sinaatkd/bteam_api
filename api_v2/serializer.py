@@ -331,6 +331,27 @@ class StorySerializer(serializers.ModelSerializer):
 
 
 class NFTAlarmSerializer(serializers.ModelSerializer):
+    created_time = serializers.SerializerMethodField()
+
+    def get_created_time(self, obj):
+        current = now()
+        created_time = obj.created_time
+        diff_dates = diff_between_two_dates(current, created_time)
+        if 0 < diff_dates.days < 30:
+            return f'{diff_dates.days} روز پیش'
+        elif 30 <= diff_dates.days < 365:
+            return f'{int(diff_dates.days / 30)} ماه پیش'
+        elif diff_dates.days >= 365:
+            return f'{int(diff_dates.days / 365)} سال پیش'
+
+        diff_dates_minute = int(diff_dates.seconds / 60)
+        if 0 <= diff_dates_minute <= 1:
+            return 'لحظاتی پیش'
+        elif 1 < diff_dates_minute < 60:
+            return f'{diff_dates_minute} دقیقه پیش'
+        elif diff_dates_minute >= 60:
+            return f'{int(diff_dates_minute / 60)} ساعت پیش'
+
     class Meta:
         model = NFTAlarm
-        exclude = ['created_time']
+        fields = '__all__'
