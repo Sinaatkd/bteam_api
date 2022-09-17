@@ -48,7 +48,7 @@ urlpatterns = [
 
     # news
     path('news-categories', GetAllNewsCategories.as_view()),
-    path('news/<category_slug>', GetNews.as_view()),
+    path('news/<category_slug>/<count>', GetNews.as_view()),
 
     # story
     path('stories', UserHasStoryList.as_view()),
