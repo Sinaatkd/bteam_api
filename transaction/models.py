@@ -4,6 +4,7 @@ from account.models import User
 from base_model.models import IntegerRangeField
 from special_account_item.models import SpecialAccountItem
 
+
 class DiscountCode(models.Model):
     code = models.CharField(max_length=20, unique=True)
     validity_date = models.DateTimeField()
@@ -18,9 +19,11 @@ class DiscountCode(models.Model):
         return self.code
 
     def jalali_validaty_date(self):
-        jdate = jdatetime.GregorianToJalali(self.validity_date.year, self.validity_date.month, self.validity_date.day).getJalaliList()
+        jdate = jdatetime.GregorianToJalali(self.validity_date.year, self.validity_date.month,
+                                            self.validity_date.day).getJalaliList()
         jdate = '{year}/{month}/{day}'.format(year=jdate[2], month=jdate[1], day=jdate[0])
         return jdate
+
 
 class Transaction(models.Model):
     payment_mode = models.CharField(max_length=20, choices=(('online', 'آنلاین'), ('offline', 'کارت به کارت')))
@@ -36,8 +39,6 @@ class Transaction(models.Model):
     consultant_name = models.CharField(max_length=300, null=True, blank=True)
     payment_receipt = models.ImageField(upload_to='receipts/', null=True, blank=True)
     is_send_receipt = models.BooleanField(default=False)
-    
-
 
     def __str__(self) -> str:
         return f'{self.user.full_name} -- {self.amount}'

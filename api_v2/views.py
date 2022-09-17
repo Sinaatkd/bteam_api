@@ -22,7 +22,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.generics import ListAPIView, UpdateAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .permissions import IsAccountOwner, IsTransactionOwner, IsAdmin
+from .permissions import IsAccountOwner, IsTransactionOwner, IsAdmin, UserHasSpecialAccount
 from .serializer import *
 from account.models import User, UserCashWithdrawal, UserGift, UserGiftLog, UserKucoinAPI, UserMessage, VerificationCode
 from special_account_item.models import SpecialAccountItem
@@ -1030,6 +1030,7 @@ class GetNFTAlarmsList(ListAPIView):
     queryset = NFTAlarm.objects.filter(expire_time__gt=now())
     serializer_class = NFTAlarmSerializer
     filterset_fields = ['filter_mode']
+    permission_classes = [UserHasSpecialAccount]
 
 
 class CreateNFTAlarm(CreateAPIView):

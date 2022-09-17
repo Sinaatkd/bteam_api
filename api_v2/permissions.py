@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission
 
+from transaction.models import Transaction
+
 
 class IsAccountOwner(BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -14,3 +16,8 @@ class IsTransactionOwner(BasePermission):
 class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return bool(request.user.is_authenticated and request.user.is_staff)
+
+
+class UserHasSpecialAccount(BasePermission):
+    def has_permission(self, request, view):
+        return bool(Transaction.objects.filter(user=request.user).first() is not None)
