@@ -23,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-mv141@de_frrc@54(z+ii*ob$4$htv_l(22-h8d!(plg4-_770'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.getenv('DEBUG', 1))
+DEBUG = True
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split()
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -95,28 +95,12 @@ WSGI_APPLICATION = "bteam_api.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-if not DEBUG:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'HOST': os.getenv('MYSQL_HOST'),
-            'USER': os.getenv('MYSQL_USER'),
-            'PASSWORD': os.getenv('MYSQL_PASSWORD'),
-            'PORT': os.getenv('MYSQL_PORT'),
-            'NAME': os.getenv('MYSQL_DB_NAME'),
-            'OPTIONS': {
-                'charset': 'utf8mb4',
-            }
-        },
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -155,9 +139,10 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn', 'static_root')
+STATIC_ROOT = '/home/code/static_cdn/static_root'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'assets')]
-MEDIA_ROOT = os.path.join(BASE_DIR, 'static_cdn', 'media_root')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'static_cdn', 'media_root')
+MEDIA_ROOT = '/home/code/static_cdn/media_root'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

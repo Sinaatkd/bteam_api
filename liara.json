@@ -1,5 +1,5 @@
 {
-    "platform": "docker",
+    "platform": "django",
     "app": "bteamapp",
     "port": 8000,
     "disks": [
@@ -9,7 +9,7 @@
         },
         {
             "name": "media",
-            "mountTo": "/home/code/staic_cdn"
+            "mountTo": "/home/code/static_cdn"
         },
         {
             "name": "cron",

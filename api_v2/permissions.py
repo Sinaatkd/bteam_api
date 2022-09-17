@@ -20,4 +20,4 @@ class IsAdmin(BasePermission):
 
 class UserHasSpecialAccount(BasePermission):
     def has_permission(self, request, view):
-        return bool(Transaction.objects.filter(user=request.user).first() is not None)
+        return bool(Transaction.objects.filter(user=request.user, is_confirmation=True).first() is not None)
