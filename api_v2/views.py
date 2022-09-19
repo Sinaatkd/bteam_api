@@ -1000,12 +1000,8 @@ class UserHasStoryList(ListAPIView):
     serializer_class = UserStorySerializer
 
     def get_queryset(self):
-        users = []
-        for user in User.objects.all():
-            user_stories = Story.objects.filter(user=user, expire_time__gt=now())
-            if user_stories.count() > 0:
-                users.append(user)
-        return users
+        user = User.objects.filter(story__isnull=False, story__expire_time__gt=now()).distinct()
+        return user
 
     def get_serializer_context(self):
         return {'request': self.request}
