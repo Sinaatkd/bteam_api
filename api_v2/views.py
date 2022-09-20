@@ -1000,8 +1000,11 @@ class UserHasStoryList(ListAPIView):
     serializer_class = UserStorySerializer
 
     def get_queryset(self):
-        user = User.objects.filter(story__isnull=False, story__expire_time__gt=now()).distinct()
-        return user
+        users = set()
+        stories = Story.objects.filter(expire_time__gt=now())
+        for story in stories:
+            users.add(story.user)
+        return users
 
     def get_serializer_context(self):
         return {'request': self.request}
@@ -1024,7 +1027,7 @@ class SetStoryVisitors(APIView):
 
 
 class GetNFTAlarmsList(ListAPIView):
-    queryset = NFTAlarm.objects.filter(expire_time__gt=now())
+    queryset = NFTAlarm.objects.filter(expire_time__gt=now()).order_by('-id')
     serializer_class = NFTAlarmSerializer
     filterset_fields = ['filter_mode']
     permission_classes = [UserHasSpecialAccount]
